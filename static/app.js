@@ -115,28 +115,64 @@ function openModal(content) {
 function orderMessage(items) {
   return `Merhaba Mahmut Hocam, sitenizden şu eserlerle ilgileniyorum:\n\n${items.map((item) => `• ${item.title} (${item.code})`).join("\n")}\n\nFiyat ve detayları konuşabilir miyiz?`;
 }
-function sendMessage(message) {
-  if (state.config.whatsapp_number)
+async function copyMessage(message) {
+  try {
+    await navigator.clipboard.writeText(message);
+    return true;
+  } catch (_) {
+    const helper = document.createElement("textarea");
+    helper.value = message;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.appendChild(helper);
+    helper.select();
+    const copied = document.execCommand("copy");
+    helper.remove();
+    return copied;
+  }
+}
+async function sendMessage(message, channel = "whatsapp") {
+  if (channel === "whatsapp" && state.config.whatsapp_number) {
     window.open(
       `https://wa.me/${state.config.whatsapp_number}?text=${encodeURIComponent(message)}`,
       "_blank",
+      "noopener,noreferrer",
     );
-  else {
-    navigator.clipboard?.writeText(message);
-    toast("Mesaj kopyalandı. Instagram mesaj kutusuna yapıştırabilirsiniz.");
-    window.open(
-      `https://instagram.com/${state.config.instagram_username}`,
-      "_blank",
-    );
+    return;
   }
+  if (channel === "instagram" && state.config.instagram_username) {
+    const instagramWindow = window.open(
+      `https://www.instagram.com/${encodeURIComponent(state.config.instagram_username)}/`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+    const copied = await copyMessage(message);
+    toast(
+      copied
+        ? "Mesaj kopyalandı. Instagram açılıyor; mesaj kutusuna yapıştırabilirsiniz."
+        : "Instagram açılıyor. Mesajı kopyalayamadık; metni elle yazabilirsiniz.",
+      "success",
+    );
+    if (!instagramWindow) toast("Instagram penceresi tarayıcı tarafından engellendi. Pop-up izni verin.");
+    return;
+  }
+  toast(
+    channel === "whatsapp"
+      ? "WhatsApp numarası henüz yapılandırılmamış."
+      : "Instagram kullanıcı adı henüz yapılandırılmamış.",
+  );
 }
 function openOrder() {
   const modal = openModal(
-    `<div class="modal-head"><div><div class="eyebrow">Atölyeden sana</div><h2>Bir hikâye çizelim.</h2></div><button class="icon-btn" data-close>×</button></div><label class="field">Çizim türü<select id="order-type"><option>Karakalem portre</option><option>Yağlı boya portre</option><option>Renkli portre</option><option>Evcil hayvan portresi</option><option>Dijital illüstrasyon</option></select></label><label class="field">Detay<textarea id="order-detail" rows="5" placeholder="Kimi çizelim, hangi duyguyu taşısın?"></textarea></label><label class="field">Referans fotoğrafı <span class="muted">(isteğe bağlı)</span><input id="order-reference" type="file" accept="image/jpeg,image/png,image/webp"></label><button class="btn btn-dark" id="send-order">WhatsApp / Instagram’a geç ↗</button><p class="small muted">Ödeme sitede alınmaz. Referans yüklemek için hesabına giriş yapmalısın.</p>`,
+    `<div class="modal-head"><div><div class="eyebrow">Atölyeden sana</div><h2>Bir hikâye çizelim.</h2></div><button class="icon-btn" data-close>×</button></div><label class="field">Çizim türü<select id="order-type"><option>Karakalem portre</option><option>Yağlı boya portre</option><option>Renkli portre</option><option>Evcil hayvan portresi</option><option>Dijital illüstrasyon</option></select></label><label class="field">Detay<textarea id="order-detail" rows="5" placeholder="Kimi çizelim, hangi duyguyu taşısın?"></textarea></label><label class="field">Referans fotoğrafı <span class="muted">(isteğe bağlı)</span><input id="order-reference" type="file" accept="image/jpeg,image/png,image/webp"></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-dark" id="send-whatsapp">WhatsApp’tan yaz ↗</button><button class="btn" id="send-instagram">Instagram’dan yaz ↗</button></div><p class="small muted">WhatsApp mesajı hazır açılır. Instagram seçilirse mesaj clipboard’a kopyalanır ve profil açılır.</p><p class="small muted">Ödeme sitede alınmaz. Referans yüklemek için hesabına giriş yapmalısın.</p>`,
   );
-  modal.querySelector("#send-order").onclick = async (event) => {
+  const collectOrderMessage = async () => {
     const detail = modal.querySelector("#order-detail").value.trim();
-    if (!detail) return toast("Lütfen çizim detayını yazın.");
+    if (!detail) {
+      toast("Lütfen çizim detayını yazın.");
+      return null;
+    }
     let reference = "";
     const file = modal.querySelector("#order-reference").files[0];
     if (file) {
@@ -151,11 +187,21 @@ function openOrder() {
         return toast(error.message);
       }
     }
-    sendMessage(
-      `Merhaba Mahmut Hocam, kişiye özel ${modal.querySelector("#order-type").value} siparişi vermek istiyorum.\n\nDetaylarım: ${detail}${reference ? `\n\nReferans fotoğrafı: ${reference}` : ""}`,
-    );
-    modal.remove();
+    const message = `Merhaba Mahmut Hocam, kişiye özel ${modal.querySelector("#order-type").value} siparişi vermek istiyorum.\n\nDetaylarım: ${detail}${reference ? `\n\nReferans fotoğrafı: ${reference}` : ""}`;
+    return message;
   };
+  const submitOrder = async (channel) => {
+    try {
+      const message = await collectOrderMessage(modal);
+      if (!message) return;
+      await sendMessage(message, channel);
+      modal.remove();
+    } catch (error) {
+      toast(error.message);
+    }
+  };
+  modal.querySelector("#send-whatsapp").onclick = () => submitOrder("whatsapp");
+  modal.querySelector("#send-instagram").onclick = () => submitOrder("instagram");
 }
 function openAuth() {
   const modal = openModal(
