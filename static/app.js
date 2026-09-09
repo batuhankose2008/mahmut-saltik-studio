@@ -7,6 +7,8 @@ const state = {
   profile: null,
   journal: [],
   archive: [],
+  search: "",
+  sort: "featured",
 };
 const $ = (selector) => document.querySelector(selector);
 const api = async (url, options = {}) => {
@@ -52,14 +54,28 @@ const saveCart = () => {
 const formatDate = (date) => new Date(date).toLocaleDateString("tr-TR");
 
 function renderArtworks() {
-  const list =
-    state.filter === "Tümü"
-      ? state.artworks
-      : state.artworks.filter((item) => item.category === state.filter);
+  let list = state.artworks.filter((item) => {
+    const matchesCategory = state.filter === "Tümü" || item.category === state.filter;
+    const needle = state.search.trim().toLocaleLowerCase("tr-TR");
+    const haystack = [item.title, item.description, item.medium, item.code].join(" ").toLocaleLowerCase("tr-TR");
+    return matchesCategory && (!needle || haystack.includes(needle));
+  });
+  list = [...list].sort((a, b) => {
+    if (state.sort === "title") return a.title.localeCompare(b.title, "tr");
+    if (state.sort === "oldest") return new Date(a.created_at) - new Date(b.created_at);
+    if (state.sort === "newest") return new Date(b.created_at) - new Date(a.created_at);
+    return Number(b.featured) - Number(a.featured) || (a.sort_order ?? 0) - (b.sort_order ?? 0);
+  });
+  const resultCount = $("#art-result-count");
+  if (resultCount) resultCount.textContent = `${list.length} eser`;
+  if (!list.length) {
+    $("#art-grid").innerHTML = '<div class="empty-gallery"><span class="eyebrow">Arşivde eşleşme yok</span><p>Arama kelimesini veya filtreyi değiştirerek tekrar deneyin.</p></div>';
+    return;
+  }
   $("#art-grid").innerHTML = list
     .map(
       (art, index) =>
-        `<article class="card ${index % 2 ? "offset" : ""}"><div class="media" data-open="${art.id}"><img src="${art.image_url}" alt="${escapeHtml(art.title)}" loading="lazy">${art.category === "Video" ? '<span class="media-badge">▶ Video</span>' : ""}<button class="favorite" data-favorite="${art.id}" aria-label="Favorile">♡</button></div><div class="card-info"><div><div class="card-meta">${escapeHtml(art.category)} / ${art.code}</div><div class="card-title">${escapeHtml(art.title)}</div><div class="small muted">${escapeHtml(art.medium)} · ${escapeHtml(art.dimensions)}</div></div><button class="icon-btn" data-add="${art.id}" aria-label="Sepete ekle">＋</button></div></article>`,
+        `<article class="card ${index % 2 ? "offset" : ""}"><div class="media" data-open="${art.id}">${art.video_url ? `<video src="${art.video_url}" muted playsinline preload="metadata"></video>` : `<img src="${art.image_url}" alt="${escapeHtml(art.title)}" loading="lazy">`}${art.video_url ? '<span class="media-badge">▶ Video</span>' : ""}<button class="favorite" data-favorite="${art.id}" aria-label="Favorile">♡</button></div><div class="card-info"><div><div class="card-meta">${escapeHtml(art.category)} / ${art.code}</div><div class="card-title">${escapeHtml(art.title)}</div><div class="small muted">${escapeHtml(art.medium)} · ${escapeHtml(art.dimensions)}</div></div><button class="icon-btn" data-add="${art.id}" aria-label="Seçkilere ekle">＋</button></div></article>`,
     )
     .join("");
   document.querySelectorAll("[data-open]").forEach(
@@ -262,8 +278,9 @@ function openCart() {
 }
 async function openLightbox(art) {
   const modal = openModal(
-    `<div class="modal-head"><div><div class="eyebrow">${art.category} / ${art.code}</div><h2>${escapeHtml(art.title)}</h2></div><button class="icon-btn" data-close>×</button></div>${art.video_url ? `<video src="${art.video_url}" controls autoplay style="width:100%;max-height:430px"></video>` : `<img src="${art.image_url}" alt="${escapeHtml(art.title)}" style="width:100%;max-height:430px;object-fit:contain;background:#e6e0d5">`}<p>${escapeHtml(art.description)}</p><div id="review-area"></div>`,
+    `<div class="modal-head"><div><div class="eyebrow">${art.category} / ${art.code}</div><h2>${escapeHtml(art.title)}</h2></div><button class="icon-btn" data-close>×</button></div>${art.video_url ? `<video src="${art.video_url}" controls autoplay style="width:100%;max-height:430px"></video>` : `<img src="${art.image_url}" alt="${escapeHtml(art.title)}" style="width:100%;max-height:430px;object-fit:contain;background:#e6e0d5">`}<div class="detail-meta"><span>${escapeHtml(art.medium)}</span><span>${escapeHtml(art.dimensions)}</span><strong>${escapeHtml(art.price_label)}</strong></div><p>${escapeHtml(art.description)}</p><button class="btn btn-dark" id="detail-order">Bu eser hakkında iletişime geç ↗</button><div id="review-area"></div>`,
   );
+  $("#detail-order").onclick = () => sendMessage(`Merhaba Mahmut Hocam, ${art.code} kodlu “${art.title}” eseriyle ilgileniyorum. Fiyat ve teslimat detaylarını öğrenebilir miyim?`, "whatsapp");
   try {
     const data = await api(`/api/reviews/${art.id}`);
     $("#review-area").innerHTML =
@@ -363,6 +380,10 @@ function bind() {
         renderArtworks();
       }),
   );
+  const search = $("#art-search");
+  if (search) search.oninput = () => { state.search = search.value; renderArtworks(); };
+  const sort = $("#art-sort");
+  if (sort) sort.onchange = () => { state.sort = sort.value; renderArtworks(); };
 }
 async function boot() {
   try {
