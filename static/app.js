@@ -291,12 +291,15 @@ async function favorite(id) {
 function renderProfile() {
   if (!state.profile) return;
   $("#profile-name").textContent = state.profile.display_name || "Mahmut Saltık";
-  $("#profile-location").textContent = `Artist · ${state.profile.location || "İstanbul / TR"}`;
+  $("#profile-location").textContent = state.profile.location
+    ? `Profil · ${state.profile.location}`
+    : "Sanatçı profili";
   $("#profile-headline").innerHTML = escapeHtml(state.profile.headline).replace(
     "\n",
     "<br>",
   );
-  $("#profile-bio").textContent = state.profile.bio;
+  $("#profile-bio").textContent =
+    state.profile.bio || "Profil açıklaması henüz eklenmedi.";
   $("#art-count").textContent = state.artworks.length;
   $("#journal-count").textContent = state.journal.length;
 }

@@ -7,5 +7,6 @@ def test_migrations_are_numbered_and_present():
         "001_initial.sql",
         "002_media_metadata.sql",
         "003_profile_and_journal.sql",
+        "004_remove_assumed_profile_defaults.sql",
     ]
     assert all(migration.read_text(encoding="utf-8").strip() for migration in migrations)
