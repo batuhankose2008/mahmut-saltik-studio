@@ -290,11 +290,15 @@ async function favorite(id) {
 }
 function renderProfile() {
   if (!state.profile) return;
+  $("#profile-name").textContent = state.profile.display_name || "Mahmut Saltık";
+  $("#profile-location").textContent = `Artist · ${state.profile.location || "İstanbul / TR"}`;
   $("#profile-headline").innerHTML = escapeHtml(state.profile.headline).replace(
     "\n",
     "<br>",
   );
   $("#profile-bio").textContent = state.profile.bio;
+  $("#art-count").textContent = state.artworks.length;
+  $("#journal-count").textContent = state.journal.length;
 }
 function renderJournal() {
   const target = $("#journal-grid");
@@ -314,6 +318,15 @@ function bind() {
   $("#order-btn").onclick = openOrder;
   $("#account-btn").onclick = openAuth;
   $("#cart-btn").onclick = openCart;
+  $("#instagram-profile").onclick = () => {
+    if (!state.config.instagram_username)
+      return toast("Instagram bağlantısı henüz yapılandırılmamış.");
+    window.open(
+      `https://www.instagram.com/${encodeURIComponent(state.config.instagram_username)}/`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
   document.querySelectorAll("[data-filter]").forEach(
     (button) =>
       (button.onclick = () => {

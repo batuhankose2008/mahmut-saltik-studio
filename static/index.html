@@ -3,154 +3,92 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Mahmut Saltık — kişiye özel karakalem, yağlı boya ve dijital çizimler."
-    />
-    <meta name="theme-color" content="#191816" />
-    <meta property="og:title" content="Mahmut Saltık — Çizginin hafızası" />
-    <meta property="og:description" content="Kişiye özel karakalem, yağlı boya ve dijital çizimler." />
+    <meta name="description" content="Mahmut Saltık — kişiye özel çizimler, portfolyo ve stüdyo günlüğü." />
+    <meta name="theme-color" content="#f7f5f1" />
+    <meta property="og:title" content="Mahmut Saltık — Artist profile" />
+    <meta property="og:description" content="Kişiye özel çizimler ve seçilmiş çalışmalar." />
     <meta property="og:type" content="website" />
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
-    <title>Mahmut Saltık — Çizginin hafızası</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <title>Mahmut Saltık — Artist profile</title>
   </head>
-  <body>
-    <header class="topbar">
-      <div
-        class="container"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
-      >
-        <a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık</a>
-        <nav class="nav">
-          <a href="#works">Eserler</a><a href="#journal">Günlük</a
-          ><a href="#about">Hikâye</a
-          ><button class="icon-btn" id="order-btn">Özel çizim</button>
+  <body class="profile-site">
+    <header class="profile-nav">
+      <div class="container profile-nav-inner">
+        <a href="/" class="wordmark">MAHMUT <span>SALTIK</span></a>
+        <nav class="profile-nav-links" aria-label="Ana navigasyon">
+          <a href="#portfolio">Portfolyo</a>
+          <a href="#journal">Günlük</a>
+          <a href="#about">Hakkında</a>
         </nav>
-        <div style="display: flex; align-items: center; gap: 8px">
-          <button class="icon-btn" id="account-btn" title="Hesabım">♙</button
-          ><button class="btn" id="cart-btn">
-            Sepet <span id="cart-count">0</span>
-          </button>
-        </div>
+        <button class="profile-menu" id="account-btn" aria-label="Hesap ve üyelik">◎</button>
       </div>
     </header>
+
     <main>
-      <section class="hero">
-        <div class="container hero-grid">
-          <div>
-            <div class="eyebrow">Çizginin hafızası / 2024</div>
-            <h1>Bakışın<br /><i>ötesinde.</i></h1>
-            <p>
-              Mahmut Saltık’ın portreler, renkler ve sessizlikler arasındaki
-              görsel arşivi. Fotoğraflardan kişiye özel çizimlere uzanan bir
-              atölye.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-accent" href="#works">Arşivi keşfet ↓</a
-              ><button
-                class="btn"
-                style="
-                  color: var(--paper);
-                  border-color: rgba(243, 240, 233, 0.3);
-                "
-                id="hero-order"
-              >
-                Bana bir çizim yap ✦
-              </button>
-            </div>
+      <section class="profile-header container">
+        <div class="profile-avatar" aria-label="Mahmut Saltık profil görseli"><span>MS</span></div>
+        <div class="profile-identity">
+          <div class="identity-line">
+            <h1 id="profile-name">Mahmut Saltık</h1>
+            <span class="verified-mark" aria-label="Doğrulanmış profil">✦</span>
           </div>
-          <div class="hero-frame">
-            <img
-              src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=900&q=85"
-              alt="Mahmut Saltık eserlerinden seçki"
-            />
+          <p class="profile-handle" id="profile-location">Artist · İstanbul / TR</p>
+          <p class="profile-bio" id="profile-bio">İnsanların yüzünde saklanan hikâyeleri; grafit, renk ve yağlı boyayla görünür kılan kişisel bir çizim arşivi.</p>
+          <div class="profile-actions">
+            <button class="profile-action primary" id="hero-order">Özel çizim iste</button>
+            <button class="profile-action" id="instagram-profile">Instagram’a git</button>
+            <button class="profile-action icon" id="cart-btn" aria-label="Seçtiklerim">▱ <span id="cart-count">0</span></button>
           </div>
+        </div>
+        <div class="profile-stats" aria-label="Profil istatistikleri">
+          <div><strong id="art-count">—</strong><span>çalışma</span></div>
+          <div><strong id="journal-count">—</strong><span>not</span></div>
+          <div><strong>01</strong><span>atölye</span></div>
         </div>
       </section>
-      <section id="works" class="section container">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">01 / Seçilmiş işler</div>
-            <h2>İçeride<br /><i>ne var?</i></h2>
-          </div>
-          <div class="section-copy muted">
-            Her parça bir anın kaydı. Bazıları satın alınabilir, bazıları
-            yalnızca bakman için burada.<br /><br /><span class="mono"
-              >Kodunu sakla:</span
-            >
-            Aldığın eserle gelen MS kodu, yorum bırakmanın anahtarıdır.
-          </div>
+
+      <section class="profile-tabs" aria-label="İçerik sekmeleri">
+        <div class="container profile-tabs-inner">
+          <a class="profile-tab active" href="#portfolio">Portfolyo</a>
+          <a class="profile-tab" href="#journal">Stüdyo günlüğü</a>
+          <a class="profile-tab" href="#about">Hikâye</a>
         </div>
-        <div class="filters">
-          <button class="filter active" data-filter="Tümü">Tümü</button
-          ><button class="filter" data-filter="Karakalem">Karakalem</button
-          ><button class="filter" data-filter="Yağlı Boya">Yağlı boya</button
-          ><button class="filter" data-filter="Renkli">Renkli</button
-          ><button class="filter" data-filter="Dijital">Dijital</button
-          ><button class="filter" data-filter="Video">Video</button>
-        </div>
-        <div class="grid" id="art-grid"></div>
       </section>
-      <section id="journal" class="section container">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">02 / Stüdyo Günlüğü</div>
-            <h2>Masadan<br /><i>kalanlar.</i></h2>
-          </div>
-          <div class="section-copy muted">
-            Instagram’a benzeyen bir kopya değil; hocanın kendi seçtiği çizim
-            süreçleri, atölye notları ve küçük anlar.
-          </div>
+
+      <section id="portfolio" class="container profile-content">
+        <div class="content-intro">
+          <div><span class="eyebrow">Selected works / 2024—25</span><h2>Çizginin<br /><i>hafızası.</i></h2></div>
+          <p>Fotoğraflardan, anılardan ve yüzlerde kalan küçük ifadelerden üretilen çalışmalar. Her iş, kendi koduyla arşivlenir.</p>
         </div>
-        <div class="grid" id="journal-grid"></div>
+        <div class="filters profile-filters" aria-label="Portfolyo filtreleri">
+          <button class="filter active" data-filter="Tümü">Tümü</button>
+          <button class="filter" data-filter="Karakalem">Karakalem</button>
+          <button class="filter" data-filter="Yağlı Boya">Yağlı boya</button>
+          <button class="filter" data-filter="Renkli">Renkli</button>
+          <button class="filter" data-filter="Dijital">Dijital</button>
+          <button class="filter" data-filter="Video">Video</button>
+        </div>
+        <div class="profile-grid" id="art-grid"></div>
       </section>
-      <section id="about" class="band">
-        <div class="container band-grid">
-          <div>
-            <div class="eyebrow">02 / Hikâye</div>
-            <h2 id="profile-headline">Çizgi,<br /><i>bir izdir.</i></h2>
-          </div>
-          <div>
-            <p>
-              <span id="profile-bio"
-                >Mahmut Saltık, insanın yüzünde saklanan sessiz hikâyeleri
-                arıyor. Kimi zaman bir grafit çizginin ucunda, kimi zaman
-                tuvalin taşıdığı renkte.</span
-              >
-            </p>
-            <p class="muted" style="font-size: 15px">
-              Fotoğrafını, fikrini veya sadece duygunu gönder. Hocanızla
-              WhatsApp ya da Instagram üzerinden konuşun; fiyat ve teslimat
-              detaylarını birlikte netleştirin.
-            </p>
-            <button class="btn btn-dark" id="about-order">
-              Kendi hikâyeni çizdir ↗
-            </button>
-          </div>
+
+      <section id="journal" class="container profile-content journal-section">
+        <div class="content-intro compact"><div><span class="eyebrow">Notes from the studio</span><h2>Masadan<br /><i>kalanlar.</i></h2></div><p>Instagram’ın kopyası değil; sanatçının kendi seçtiği süreç, düşünce ve atölye kayıtları.</p></div>
+        <div class="profile-grid journal-grid" id="journal-grid"></div>
+      </section>
+
+      <section id="about" class="about-section">
+        <div class="container about-grid">
+          <div><span class="eyebrow">About the artist</span><h2 id="profile-headline">Çizgi,<br /><i>bir izdir.</i></h2></div>
+          <div><p class="about-copy">Mahmut Saltık, fotoğraflardaki anları kişiye özel çizimlere dönüştüren bir resim öğretmeni ve sanatçı. Bu alan, çalışmalarını düzenli bir arşivde buluşturur.</p><button class="profile-action primary" id="about-order">Kendi hikâyeni çizdir</button></div>
         </div>
       </section>
     </main>
-    <footer class="footer">
-      <div class="container footer-inner">
-        <span>© 2024 Mahmut Saltık Studio</span
-        ><span>Instagram · WhatsApp · İstanbul</span
-        ><span
-          ><a href="/privacy.html">Gizlilik</a> ·
-          <a href="/terms.html">Koşullar</a></span
-        >
-      </div>
-    </footer>
+
+    <footer class="profile-footer"><div class="container"><span>© 2025 Mahmut Saltık Studio</span><span><a href="/privacy.html">Gizlilik</a> · <a href="/terms.html">Koşullar</a></span></div></footer>
     <script src="/static/app.js"></script>
     <script>
-      document.querySelector("#hero-order").onclick = () =>
-        document.querySelector("#order-btn").click();
-      document.querySelector("#about-order").onclick = () =>
-        document.querySelector("#order-btn").click();
+      document.querySelector("#about-order").onclick = () => document.querySelector("#hero-order").click();
     </script>
   </body>
 </html>
