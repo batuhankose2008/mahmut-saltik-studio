@@ -315,6 +315,18 @@ function renderJournal() {
         .join("")
     : '<p class="muted">Stüdyo günlüğü yakında burada.</p>';
 }
+function renderHighlights() {
+  const target = $("#highlight-row");
+  if (!target) return;
+  const entries = state.journal.filter((entry) => entry.featured).slice(0, 6);
+  target.innerHTML = entries
+    .map(
+      (entry) =>
+        `<a class="highlight" href="#journal" title="${escapeHtml(entry.title)}"><span class="highlight-ring"><span>${entry.media_url ? (entry.media_type === "video" ? "▶" : "✦") : "MS"}</span></span><small>${escapeHtml(entry.title).slice(0, 16)}</small></a>`,
+    )
+    .join("");
+  target.classList.toggle("is-empty", !entries.length);
+}
 
 function bind() {
   $("#cart-count").textContent = state.cart.length;
@@ -359,6 +371,7 @@ async function boot() {
     } catch (_) {}
     renderProfile();
     renderJournal();
+    renderHighlights();
     renderArtworks();
     bind();
   } catch (error) {
