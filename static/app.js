@@ -380,3 +380,34 @@ async function boot() {
   }
 }
 boot();
+
+// Motion fallback: Higgsfield hero video becomes an optional enhancement when a paid asset is available.
+// The public site stays animated without depending on a remote generation job.
+function installMotionFallback() {
+  const header = document.querySelector(".profile-header");
+  if (!header || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const visual = document.querySelector(".profile-avatar");
+  if (visual) {
+    header.addEventListener("pointermove", (event) => {
+      const rect = header.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+      const y = ((event.clientY - rect.top) / rect.height - 0.5) * 8;
+      visual.style.transform = `translate(${x}px, ${y}px)`;
+    });
+    header.addEventListener("pointerleave", () => {
+      visual.style.transform = "";
+    });
+  }
+  const items = document.querySelectorAll(".profile-content, .about-section, .journal-section");
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("motion-visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  items.forEach((item) => observer.observe(item));
+}
+
+installMotionFallback();
