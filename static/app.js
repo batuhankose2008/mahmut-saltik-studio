@@ -6,6 +6,7 @@ const state = {
   user: null,
   profile: null,
   journal: [],
+  archive: [],
 };
 const $ = (selector) => document.querySelector(selector);
 const api = async (url, options = {}) => {
@@ -81,6 +82,14 @@ function renderArtworks() {
     .querySelectorAll("[data-favorite]")
     .forEach((node) => (node.onclick = () => favorite(node.dataset.favorite)));
 }
+function renderArchive() {
+  const target = $("#archive-grid");
+  if (!target) return;
+  target.innerHTML = state.archive.length
+    ? state.archive.map((entry) => `<article class="card archive-card"><div class="media">${entry.media_type === "video" ? `<video src="${entry.media_url}" controls playsinline preload="metadata"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title || "Arşiv görseli")}" loading="lazy">`}<span class="media-badge">${escapeHtml(entry.kind)}</span></div><div class="card-info"><div><div class="card-meta">${escapeHtml(entry.source)} / ${formatDate(entry.created_at)}</div><div class="card-title">${escapeHtml(entry.title || "Başlıksız içerik")}</div><div class="small muted">${escapeHtml(entry.caption || "")}</div></div></div></article>`).join("")
+    : '<p class="muted">Arşiv içerikleri admin panelinden yayınlandığında burada görünecek.</p>';
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(
     /[&<>'"]/g,
@@ -357,16 +366,18 @@ function bind() {
 }
 async function boot() {
   try {
-    const [artworks, config, profile, journal] = await Promise.all([
+    const [artworks, config, profile, journal, archive] = await Promise.all([
       api("/api/artworks"),
       api("/api/config"),
       api("/api/profile"),
       api("/api/journal"),
+      api("/api/archive"),
     ]);
     state.artworks = artworks;
     state.config = config;
     state.profile = profile;
     state.journal = journal;
+    state.archive = archive;
     try {
       state.user = (await api("/api/auth/me")).user;
     } catch (_) {}
@@ -374,6 +385,7 @@ async function boot() {
     renderJournal();
     renderHighlights();
     renderArtworks();
+    renderArchive();
     bind();
   } catch (error) {
     toast(error.message);

@@ -78,6 +78,14 @@ class JournalUpdate(BaseModel):
     published: Optional[bool] = None
 
 
+class ArchiveUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, max_length=160)
+    caption: Optional[str] = Field(default=None, max_length=4000)
+    kind: Optional[str] = None
+    sort_order: Optional[int] = Field(default=None, ge=0, le=100000)
+    published: Optional[bool] = None
+
+
 @app.exception_handler(StarletteHTTPException)
 async def http_error(request: Request, exc: StarletteHTTPException):
     if request.url.path.startswith("/api/"):
@@ -123,6 +131,11 @@ def profile():
 @app.get("/api/journal")
 def journal():
     return query_all("SELECT id, title, body, media_url, media_type, featured, published, created_at FROM journal_entries WHERE published = TRUE ORDER BY featured DESC, created_at DESC")
+
+
+@app.get("/api/archive")
+def public_archive():
+    return query_all("SELECT id, source, source_id, kind, title, caption, media_url, media_type, sort_order, created_at FROM social_archive WHERE published = TRUE ORDER BY sort_order ASC, created_at ASC")
 
 
 @app.get("/api/artworks")
@@ -269,6 +282,41 @@ def delete_journal(entry_id: str, user: dict = Depends(admin_user)):
     return {"success": True}
 
 
+@app.get("/api/admin/archive")
+def admin_archive(user: dict = Depends(admin_user)):
+    return query_all("SELECT * FROM social_archive ORDER BY sort_order ASC, created_at ASC")
+
+
+@app.post("/api/admin/archive")
+async def create_archive(kind: str = Form(...), title: str = Form(""), caption: str = Form(""), sort_order: int = Form(0), published: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
+    if kind not in {"post", "video", "highlight"}:
+        raise HTTPException(status_code=400, detail="Arşiv türü post, video veya highlight olmalı.")
+    media_url, _ = await store_upload(file)
+    media_type = "video" if (file.content_type or "").startswith("video/") else "image"
+    return query_one("INSERT INTO social_archive (source, kind, title, caption, media_url, media_type, sort_order, published) VALUES ('manual', %s, %s, %s, %s, %s, %s, %s) RETURNING *", (kind, title, caption, media_url, media_type, sort_order, published))
+
+
+@app.patch("/api/admin/archive/{entry_id}")
+def update_archive(entry_id: str, data: ArchiveUpdate, user: dict = Depends(admin_user)):
+    values = {key: value for key, value in data.model_dump().items() if value is not None}
+    values = {key: value for key, value in values.items() if key in {"title", "caption", "kind", "sort_order", "published"}}
+    if not values:
+        raise HTTPException(status_code=400, detail="Değiştirilecek alan bulunamadı.")
+    assignments = ", ".join(f"{key} = %s" for key in values)
+    row = query_one(f"UPDATE social_archive SET {assignments} WHERE id = %s RETURNING *", tuple(values.values()) + (entry_id,))
+    if not row:
+        raise HTTPException(status_code=404, detail="Arşiv kaydı bulunamadı.")
+    return row
+
+
+@app.delete("/api/admin/archive/{entry_id}")
+def delete_archive(entry_id: str, user: dict = Depends(admin_user)):
+    row = query_one("DELETE FROM social_archive WHERE id = %s RETURNING id", (entry_id,))
+    if not row:
+        raise HTTPException(status_code=404, detail="Arşiv kaydı bulunamadı.")
+    return {"success": True}
+
+
 @app.post("/api/commission/reference")
 async def upload_commission_reference(file: UploadFile = File(...), user: dict = Depends(current_user)):
     if not (file.content_type or "").startswith("image/"):
@@ -281,12 +329,12 @@ async def upload_commission_reference(file: UploadFile = File(...), user: dict =
 
 
 @app.post("/api/admin/artworks")
-async def create_artwork(title: str = Form(...), description: str = Form(...), category: str = Form(...), price_label: str = Form(...), medium: str = Form(...), dimensions: str = Form(...), sort_order: int = Form(0), featured: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
+async def create_artwork(title: str = Form(...), description: str = Form(...), category: str = Form(...), price_label: str = Form(...), medium: str = Form(...), dimensions: str = Form(...), sort_order: int = Form(0), featured: bool = Form(False), published: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
     image_url, storage_key = await store_upload(file)
     code = f"MS-{uuid.uuid4().hex[:6].upper()}"
     slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") + "-" + code.lower()
     is_video = (file.content_type or "").startswith("video/")
-    row = query_one("INSERT INTO artworks (title, slug, category, description, image_url, video_url, price_label, featured, sort_order, medium, dimensions, code, storage_key) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *", (title, slug, category, description, image_url, image_url if is_video else None, price_label, featured, sort_order, medium, dimensions, code, storage_key))
+    row = query_one("INSERT INTO artworks (title, slug, category, description, image_url, video_url, price_label, featured, published, sort_order, medium, dimensions, code, storage_key) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *", (title, slug, category, description, image_url, image_url if is_video else None, price_label, featured, published, sort_order, medium, dimensions, code, storage_key))
     return row
 
 
@@ -296,8 +344,11 @@ def update_artwork(artwork_id: str, data: ArtworkUpdate, user: dict = Depends(ad
     if not values:
         raise HTTPException(status_code=400, detail="Değiştirilecek alan bulunamadı.")
     allowed = {"title", "description", "category", "price_label", "medium", "dimensions", "featured", "published", "sort_order"}
-    assignments = ", ".join(f"{key} = %s" for key in values if key in allowed)
-    params = tuple(values[key] for key in values if key in allowed) + (artwork_id,)
+    values = {key: value for key, value in values.items() if key in allowed}
+    if not values:
+        raise HTTPException(status_code=400, detail="Değiştirilecek alan bulunamadı.")
+    assignments = ", ".join(f"{key} = %s" for key in values)
+    params = tuple(values.values()) + (artwork_id,)
     row = query_one(f"UPDATE artworks SET {assignments} WHERE id = %s RETURNING *", params)
     if not row:
         raise HTTPException(status_code=404, detail="Eser bulunamadı.")
@@ -305,10 +356,15 @@ def update_artwork(artwork_id: str, data: ArtworkUpdate, user: dict = Depends(ad
 
 
 @app.delete("/api/admin/artworks/{artwork_id}")
-def delete_artwork(artwork_id: str, user: dict = Depends(admin_user)):
-    row = query_one("DELETE FROM artworks WHERE id = %s RETURNING id", (artwork_id,))
+async def delete_artwork(artwork_id: str, user: dict = Depends(admin_user)):
+    row = query_one("DELETE FROM artworks WHERE id = %s RETURNING id, storage_key", (artwork_id,))
     if not row:
         raise HTTPException(status_code=404, detail="Eser bulunamadı.")
+    supabase_url, service_key, bucket = storage_settings()
+    if row.get("storage_key") and supabase_url and service_key:
+        headers = {"Authorization": f"Bearer {service_key}", "apikey": service_key}
+        async with httpx.AsyncClient(timeout=30) as client:
+            await client.delete(f"{supabase_url.rstrip('/')}/storage/v1/object/{bucket}/{row['storage_key']}", headers=headers)
     return {"success": True}
 
 
