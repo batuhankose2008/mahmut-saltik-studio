@@ -747,3 +747,8 @@ a {
 .highlight-ring span { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: #f7f5f1; color: #8d6c52; font: 18px "Playfair Display", serif; }
 .highlight:hover small { color: #20201e; }
 @media (max-width: 760px) { .highlight-strip { width: calc(100% - 28px); gap: 16px; min-height: 112px; } .highlight-ring { width: 64px; height: 64px; } }
+
+.media-preview { margin-top: 18px; display: grid; place-items: center; min-height: 12px; }
+.media-preview img, .media-preview video { display: block; width: min(100%, 420px); max-height: 280px; object-fit: contain; background: #ddd7cb; border-radius: 8px; }
+.dropzone { border-radius: 12px; transition: border-color .2s, background .2s; }
+.dropzone:has(input:focus) { border-color: #8d6c52; background: #efe8dd; }

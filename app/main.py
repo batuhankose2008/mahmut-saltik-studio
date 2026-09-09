@@ -281,12 +281,12 @@ async def upload_commission_reference(file: UploadFile = File(...), user: dict =
 
 
 @app.post("/api/admin/artworks")
-async def create_artwork(title: str = Form(...), description: str = Form(...), category: str = Form(...), price_label: str = Form(...), medium: str = Form(...), dimensions: str = Form(...), featured: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
+async def create_artwork(title: str = Form(...), description: str = Form(...), category: str = Form(...), price_label: str = Form(...), medium: str = Form(...), dimensions: str = Form(...), sort_order: int = Form(0), featured: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
     image_url, storage_key = await store_upload(file)
     code = f"MS-{uuid.uuid4().hex[:6].upper()}"
     slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") + "-" + code.lower()
     is_video = (file.content_type or "").startswith("video/")
-    row = query_one("INSERT INTO artworks (title, slug, category, description, image_url, video_url, price_label, featured, medium, dimensions, code, storage_key) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *", (title, slug, category, description, image_url, image_url if is_video else None, price_label, featured, medium, dimensions, code, storage_key))
+    row = query_one("INSERT INTO artworks (title, slug, category, description, image_url, video_url, price_label, featured, sort_order, medium, dimensions, code, storage_key) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *", (title, slug, category, description, image_url, image_url if is_video else None, price_label, featured, sort_order, medium, dimensions, code, storage_key))
     return row
 
 
