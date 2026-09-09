@@ -87,7 +87,7 @@ function renderArchive() {
   if (!target) return;
   target.innerHTML = state.archive.length
     ? state.archive.map((entry) => `<article class="card archive-card"><div class="media">${entry.media_type === "video" ? `<video src="${entry.media_url}" controls playsinline preload="metadata"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title || "Arşiv görseli")}" loading="lazy">`}<span class="media-badge">${escapeHtml(entry.kind)}</span></div><div class="card-info"><div><div class="card-meta">${escapeHtml(entry.source)} / ${formatDate(entry.created_at)}</div><div class="card-title">${escapeHtml(entry.title || "Başlıksız içerik")}</div><div class="small muted">${escapeHtml(entry.caption || "")}</div></div></div></article>`).join("")
-    : '<p class="muted">Arşiv içerikleri admin panelinden yayınlandığında burada görünecek.</p>';
+    : '<div class="empty-gallery"><span class="eyebrow">Seçili arşiv</span><p>Atölyeden seçilen gönderiler, videolar ve öne çıkanlar burada sıralanacak.</p></div>';
 }
 
 function escapeHtml(value) {
@@ -308,7 +308,7 @@ function renderProfile() {
     "<br>",
   );
   $("#profile-bio").textContent =
-    state.profile.bio || "Profil açıklaması henüz eklenmedi.";
+    state.profile.bio || "Mahmut Saltık, kişiye özel portreleri fotoğraflardaki duyguyu koruyarak üretir.";
   $("#art-count").textContent = state.artworks.length;
   $("#journal-count").textContent = state.journal.length;
 }
@@ -322,7 +322,7 @@ function renderJournal() {
             `<article class="card"><div class="media">${entry.media_url ? (entry.media_type === "video" ? `<video src="${entry.media_url}" controls style="width:100%;height:100%;object-fit:cover"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title)}" loading="lazy">`) : `<div style="height:100%;display:grid;place-items:center;padding:30px;text-align:center;font:26px 'Playfair Display',serif">${escapeHtml(entry.body.slice(0, 90))}</div>`}</div><div class="card-info"><div><div class="card-meta">${formatDate(entry.created_at)} / Stüdyo notu</div><div class="card-title">${escapeHtml(entry.title)}</div><div class="small muted">${escapeHtml(entry.body)}</div></div></div></article>`,
         )
         .join("")
-    : '<p class="muted">Stüdyo günlüğü yakında burada.</p>';
+    : '<div class="empty-gallery"><span class="eyebrow">Atölyeden</span><p>Çizim süreci, malzemeler ve atölye notları burada paylaşılacak.</p></div>';
 }
 function renderHighlights() {
   const target = $("#highlight-row");
@@ -410,7 +410,7 @@ function installMotionFallback() {
       visual.style.transform = "";
     });
   }
-  const items = document.querySelectorAll(".profile-content, .about-section, .journal-section");
+  const items = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
