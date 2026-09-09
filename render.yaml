@@ -25,3 +25,5 @@ services:
         value: artworks
       - key: COOKIE_SECURE
         value: "true"
+      - key: STORAGE_REQUIRED
+        value: "true"

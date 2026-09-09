@@ -29,7 +29,14 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="Mahmut Saltık Studio API", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "*").split(","), allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+configured_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=configured_origins or ["*"],
+    allow_credentials=bool(configured_origins),
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-CSRF-Token"],
+)
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
@@ -229,6 +236,9 @@ async def store_upload(file: UploadFile) -> tuple[str, Optional[str]]:
                 raise HTTPException(status_code=502, detail="Supabase Storage dosyayı kabul etmedi. Bucket ve Service Role Key ayarlarını kontrol edin.")
         local_path.unlink(missing_ok=True)
         return f"{supabase_url.rstrip('/')}/storage/v1/object/public/{bucket}/{filename}", filename
+    if os.getenv("STORAGE_REQUIRED", "false").lower() == "true":
+        local_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=503, detail="Production medya depolaması yapılandırılmamış. Supabase Storage ayarlarını tamamlayın.")
     return local_url, filename
 
 
