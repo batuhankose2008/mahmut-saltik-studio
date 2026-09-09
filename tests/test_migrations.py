@@ -1,0 +1,11 @@
+from pathlib import Path
+
+
+def test_migrations_are_numbered_and_present():
+    migrations = sorted((Path(__file__).parents[1] / "migrations").glob("*.sql"))
+    assert [migration.name for migration in migrations] == [
+        "001_initial.sql",
+        "002_media_metadata.sql",
+        "003_profile_and_journal.sql",
+    ]
+    assert all(migration.read_text(encoding="utf-8").strip() for migration in migrations)

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>500 — Mahmut Saltık Studio</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main
+      style="
+        min-height: 100vh;
+        background: var(--paper2);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px;
+      "
+    >
+      <div>
+        <div class="mark" style="margin: auto">M</div>
+        <div class="eyebrow" style="margin-top: 30px">
+          500 / Kısa bir aksaklık
+        </div>
+        <h1
+          class="display"
+          style="
+            font-size: clamp(52px, 9vw, 110px);
+            line-height: 0.85;
+            margin: 20px 0;
+          "
+        >
+          Çizgi<br /><i>durakladı.</i>
+        </h1>
+        <p
+          class="muted"
+          style="max-width: 410px; line-height: 1.7; margin: 0 auto 30px"
+        >
+          Sunucu bu işlemi tamamlayamadı. Birkaç saniye sonra tekrar dene;
+          eserlerin kaybolmadı.
+        </p>
+        <button class="btn btn-dark" onclick="location.reload()">
+          Tekrar dene ↻</button
+        ><a class="btn" href="/" style="margin-left: 8px">Ana sayfa</a>
+      </div>
+    </main>
+  </body>
+</html>

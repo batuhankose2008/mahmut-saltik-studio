@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Mahmut Saltık — kişiye özel karakalem, yağlı boya ve dijital çizimler."
+    />
+    <meta name="theme-color" content="#191816" />
+    <meta property="og:title" content="Mahmut Saltık — Çizginin hafızası" />
+    <meta property="og:description" content="Kişiye özel karakalem, yağlı boya ve dijital çizimler." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <title>Mahmut Saltık — Çizginin hafızası</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div
+        class="container"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık</a>
+        <nav class="nav">
+          <a href="#works">Eserler</a><a href="#journal">Günlük</a
+          ><a href="#about">Hikâye</a
+          ><button class="icon-btn" id="order-btn">Özel çizim</button>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <button class="icon-btn" id="account-btn" title="Hesabım">♙</button
+          ><button class="btn" id="cart-btn">
+            Sepet <span id="cart-count">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <div class="eyebrow">Çizginin hafızası / 2024</div>
+            <h1>Bakışın<br /><i>ötesinde.</i></h1>
+            <p>
+              Mahmut Saltık’ın portreler, renkler ve sessizlikler arasındaki
+              görsel arşivi. Fotoğraflardan kişiye özel çizimlere uzanan bir
+              atölye.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-accent" href="#works">Arşivi keşfet ↓</a
+              ><button
+                class="btn"
+                style="
+                  color: var(--paper);
+                  border-color: rgba(243, 240, 233, 0.3);
+                "
+                id="hero-order"
+              >
+                Bana bir çizim yap ✦
+              </button>
+            </div>
+          </div>
+          <div class="hero-frame">
+            <img
+              src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=900&q=85"
+              alt="Mahmut Saltık eserlerinden seçki"
+            />
+          </div>
+        </div>
+      </section>
+      <section id="works" class="section container">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">01 / Seçilmiş işler</div>
+            <h2>İçeride<br /><i>ne var?</i></h2>
+          </div>
+          <div class="section-copy muted">
+            Her parça bir anın kaydı. Bazıları satın alınabilir, bazıları
+            yalnızca bakman için burada.<br /><br /><span class="mono"
+              >Kodunu sakla:</span
+            >
+            Aldığın eserle gelen MS kodu, yorum bırakmanın anahtarıdır.
+          </div>
+        </div>
+        <div class="filters">
+          <button class="filter active" data-filter="Tümü">Tümü</button
+          ><button class="filter" data-filter="Karakalem">Karakalem</button
+          ><button class="filter" data-filter="Yağlı Boya">Yağlı boya</button
+          ><button class="filter" data-filter="Renkli">Renkli</button
+          ><button class="filter" data-filter="Dijital">Dijital</button
+          ><button class="filter" data-filter="Video">Video</button>
+        </div>
+        <div class="grid" id="art-grid"></div>
+      </section>
+      <section id="journal" class="section container">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">02 / Stüdyo Günlüğü</div>
+            <h2>Masadan<br /><i>kalanlar.</i></h2>
+          </div>
+          <div class="section-copy muted">
+            Instagram’a benzeyen bir kopya değil; hocanın kendi seçtiği çizim
+            süreçleri, atölye notları ve küçük anlar.
+          </div>
+        </div>
+        <div class="grid" id="journal-grid"></div>
+      </section>
+      <section id="journal" class="section container">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">02 / Stüdyo Günlüğü</div>
+            <h2>Masadan<br /><i>kalanlar.</i></h2>
+          </div>
+          <div class="section-copy muted">
+            Instagram’a benzeyen bir kopya değil; hocanın kendi seçtiği çizim
+            süreçleri, atölye notları ve küçük anlar.
+          </div>
+        </div>
+        <div class="grid" id="journal-grid"></div>
+      </section>
+      <section id="about" class="band">
+        <div class="container band-grid">
+          <div>
+            <div class="eyebrow">02 / Hikâye</div>
+            <h2 id="profile-headline">Çizgi,<br /><i>bir izdir.</i></h2>
+          </div>
+          <div>
+            <p>
+              <span id="profile-bio"
+                >Mahmut Saltık, insanın yüzünde saklanan sessiz hikâyeleri
+                arıyor. Kimi zaman bir grafit çizginin ucunda, kimi zaman
+                tuvalin taşıdığı renkte.</span
+              >
+            </p>
+            <p class="muted" style="font-size: 15px">
+              Fotoğrafını, fikrini veya sadece duygunu gönder. Hocanızla
+              WhatsApp ya da Instagram üzerinden konuşun; fiyat ve teslimat
+              detaylarını birlikte netleştirin.
+            </p>
+            <button class="btn btn-dark" id="about-order">
+              Kendi hikâyeni çizdir ↗
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="container footer-inner">
+        <span>© 2024 Mahmut Saltık Studio</span
+        ><span>Instagram · WhatsApp · İstanbul</span
+        ><span
+          ><a href="/privacy.html">Gizlilik</a> ·
+          <a href="/terms.html">Koşullar</a></span
+        >
+      </div>
+    </footer>
+    <script src="/static/app.js"></script>
+    <script>
+      document.querySelector("#hero-order").onclick = () =>
+        document.querySelector("#order-btn").click();
+      document.querySelector("#about-order").onclick = () =>
+        document.querySelector("#order-btn").click();
+    </script>
+  </body>
+</html>
