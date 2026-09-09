@@ -330,7 +330,8 @@ function renderHighlights() {
 
 function bind() {
   $("#cart-count").textContent = state.cart.length;
-  $("#order-btn").onclick = openOrder;
+  const orderButton = $("#order-btn") || $("#hero-order");
+  if (orderButton) orderButton.onclick = openOrder;
   $("#account-btn").onclick = openAuth;
   $("#cart-btn").onclick = openCart;
   $("#instagram-profile").onclick = () => {
