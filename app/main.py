@@ -331,6 +331,14 @@ def update_commission_request(request_id: str, data: CommissionStatusUpdate, use
     return row
 
 
+@app.delete("/api/admin/commission-requests/{request_id}")
+def delete_commission_request(request_id: str, user: dict = Depends(admin_user)):
+    row = query_one("DELETE FROM commission_requests WHERE id = %s RETURNING id", (request_id,))
+    if not row:
+        raise HTTPException(status_code=404, detail="Sipariş talebi bulunamadı.")
+    return {"deleted": True, "id": row["id"]}
+
+
 @app.post("/api/admin/archive")
 async def create_archive(kind: str = Form(...), title: str = Form(""), caption: str = Form(""), sort_order: int = Form(0), published: bool = Form(False), file: UploadFile = File(...), user: dict = Depends(admin_user)):
     if kind not in {"post", "video", "highlight"}:
