@@ -322,15 +322,14 @@ function renderProfile() {
   if (!state.profile) return;
   const profileBar = document.querySelector(".profile-bar");
   if (profileBar) profileBar.hidden = !(state.profile.bio || state.artworks.length || state.journal.length);
-  $("#profile-name").textContent = state.profile.display_name || "Mahmut Saltık";
-  $("#profile-location").textContent = state.profile.location
-    ? `Profil · ${state.profile.location}`
-    : "Sanatçı profili";
-  $("#profile-headline").innerHTML = escapeHtml(state.profile.headline).replace(
-    "\n",
-    "<br>",
-  );
-  $("#profile-bio").textContent = state.profile.bio || "";
+  const name = $("#profile-name");
+  if (name) name.textContent = state.profile.display_name || "Mahmut Saltık";
+  const location = $("#profile-location");
+  if (location) location.textContent = state.profile.location ? `Profil · ${state.profile.location}` : "";
+  const headline = $("#profile-headline");
+  if (headline) headline.innerHTML = escapeHtml(state.profile.headline || "").replace("\n", "<br>");
+  const profileBio = $("#profile-bio");
+  if (profileBio) profileBio.textContent = state.profile.bio || "";
   const aboutBio = $("#about-bio");
   if (aboutBio) aboutBio.textContent = state.profile.bio || "";
   const aboutHeading = $("#about-heading");
@@ -341,7 +340,7 @@ function renderProfile() {
 function renderJournal() {
   const target = $("#journal-grid");
   if (!target) return;
-  const section = $("#journal");
+  const section = $("#video");
   if (section) section.hidden = !state.journal.length;
   target.innerHTML = state.journal.length
     ? state.journal
@@ -371,11 +370,11 @@ function bind() {
   $("#cart-count").textContent = state.cart.length;
   const themeToggle = $("#theme-toggle");
   const storedTheme = localStorage.getItem("studio_theme");
-  if (storedTheme === "dark") document.documentElement.dataset.theme = "dark";
+  if (storedTheme === "light") document.body.classList.remove("dark-site");
+  else document.body.classList.add("dark-site");
   if (themeToggle) themeToggle.onclick = () => {
-    const dark = document.documentElement.dataset.theme === "dark";
-    document.documentElement.dataset.theme = dark ? "light" : "dark";
-    localStorage.setItem("studio_theme", dark ? "light" : "dark");
+    const dark = document.body.classList.toggle("dark-site");
+    localStorage.setItem("studio_theme", dark ? "dark" : "light");
   };
   const navLinks = document.querySelectorAll(".main-nav a");
   if (navLinks[0]) navLinks[0].hidden = !state.artworks.length;
@@ -383,8 +382,13 @@ function bind() {
   if (navLinks[2]) navLinks[2].hidden = !state.profile?.bio;
   const orderButton = $("#order-btn") || $("#hero-order");
   if (orderButton) orderButton.onclick = openOrder;
-  $("#account-btn").onclick = openAuth;
-  $("#cart-btn").onclick = openCart;
+  document.querySelectorAll("[data-open-order], #about-order").forEach((button) => {
+    button.onclick = openOrder;
+  });
+  const accountButton = $("#account-btn");
+  if (accountButton) accountButton.onclick = openAuth;
+  const cartButton = $("#cart-btn");
+  if (cartButton) cartButton.onclick = openCart;
   $("#instagram-profile").onclick = () => {
     if (!state.config.instagram_username)
       return toast("Instagram bağlantısı henüz yapılandırılmamış.");
@@ -393,6 +397,16 @@ function bind() {
       "_blank",
       "noopener,noreferrer",
     );
+  };
+  document.querySelectorAll("[data-contact]").forEach((button) => {
+    button.onclick = () => sendMessage("Merhaba Mahmut Hocam, çalışmalarınız ve özel çizim siparişi hakkında bilgi almak istiyorum.", button.dataset.contact);
+  });
+  const contactForm = $("#contact-form");
+  if (contactForm) contactForm.onsubmit = async (event) => {
+    event.preventDefault();
+    const data = new FormData(contactForm);
+    await sendMessage(`Merhaba Mahmut Hocam, ben ${data.get("name") || ""}.\n\n${data.get("message") || ""}`, "whatsapp");
+    contactForm.reset();
   };
   document.querySelectorAll("[data-filter]").forEach(
     (button) =>
@@ -450,9 +464,9 @@ function installMotionFallback() {
   };
   window.addEventListener("scroll", updateProgress, { passive: true });
   updateProgress();
-  const header = document.querySelector(".hero-v2");
+  const header = document.querySelector(".reference-hero");
   if (!header || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const visual = document.querySelector(".hero-v2-visual");
+  const visual = document.querySelector(".hero-portrait");
   if (visual) {
     header.addEventListener("pointermove", (event) => {
       const rect = header.getBoundingClientRect();
