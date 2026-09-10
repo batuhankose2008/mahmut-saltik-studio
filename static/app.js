@@ -105,6 +105,8 @@ function renderArchive() {
   if (!target) return;
   const section = $("#instagram-archive");
   if (section) section.hidden = !state.archive.length;
+  const count = $("#archive-count");
+  if (count) count.textContent = state.archive.length ? `${state.archive.length} gönderi` : "";
   target.innerHTML = state.archive.length
     ? state.archive.map((entry) => `<article class="card archive-card"><div class="media">${entry.media_type === "video" ? `<video src="${entry.media_url}" controls playsinline preload="metadata"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title || "Arşiv görseli")}" loading="lazy">`}<span class="media-badge">${escapeHtml(entry.kind)}</span></div><div class="card-info"><div><div class="card-meta">${escapeHtml(entry.source)} / ${formatDate(entry.created_at)}</div><div class="card-title">${escapeHtml(entry.title || "Başlıksız içerik")}</div><div class="small muted">${escapeHtml(entry.caption || "")}</div></div></div></article>`).join("")
     : '<div class="empty-gallery"><span class="eyebrow">Seçili arşiv</span><p>Atölyeden seçilen gönderiler, videolar ve öne çıkanlar burada sıralanacak.</p></div>';
