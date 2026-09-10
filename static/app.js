@@ -320,6 +320,8 @@ async function favorite(id) {
 }
 function renderProfile() {
   if (!state.profile) return;
+  const profileBar = document.querySelector(".profile-bar");
+  if (profileBar) profileBar.hidden = !(state.profile.bio || state.artworks.length || state.journal.length);
   $("#profile-name").textContent = state.profile.display_name || "Mahmut Saltık";
   $("#profile-location").textContent = state.profile.location
     ? `Profil · ${state.profile.location}`
@@ -367,6 +369,10 @@ function renderHighlights() {
 
 function bind() {
   $("#cart-count").textContent = state.cart.length;
+  const navLinks = document.querySelectorAll(".main-nav a");
+  if (navLinks[0]) navLinks[0].hidden = !state.artworks.length;
+  if (navLinks[1]) navLinks[1].hidden = !state.journal.length;
+  if (navLinks[2]) navLinks[2].hidden = !state.profile?.bio;
   const orderButton = $("#order-btn") || $("#hero-order");
   if (orderButton) orderButton.onclick = openOrder;
   $("#account-btn").onclick = openAuth;
