@@ -369,6 +369,14 @@ function renderHighlights() {
 
 function bind() {
   $("#cart-count").textContent = state.cart.length;
+  const themeToggle = $("#theme-toggle");
+  const storedTheme = localStorage.getItem("studio_theme");
+  if (storedTheme === "dark") document.documentElement.dataset.theme = "dark";
+  if (themeToggle) themeToggle.onclick = () => {
+    const dark = document.documentElement.dataset.theme === "dark";
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    localStorage.setItem("studio_theme", dark ? "light" : "dark");
+  };
   const navLinks = document.querySelectorAll(".main-nav a");
   if (navLinks[0]) navLinks[0].hidden = !state.artworks.length;
   if (navLinks[1]) navLinks[1].hidden = !state.journal.length;
