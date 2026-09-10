@@ -124,6 +124,26 @@ SUPABASE_SECRET_KEY=<server-only-key>
 
 Service role veya secret key hiçbir zaman frontend’e, GitHub’a, ZIP’e, README’ye veya tarayıcıya gönderilmez.
 
+## Instagram gönderi arşivini toplu aktarma
+
+Instagram hesabının sahibi, kendi hesabıyla [Accounts Center → Bilgilerini dışa aktar](https://accountscenter.instagram.com/info_and_permissions/dyi/) ekranına girerek Instagram profilini seçmelidir. Veri aralığı **Tüm zamanlar**, format **JSON** ve medya kalitesi mümkün olan en yüksek değer seçilmelidir. Hazırlanan ZIP dosyası indirildikten sonra gerçek admin şifresi komut satırında kullanılarak import aracı çalıştırılır:
+
+```bash
+python tools/import_instagram_export.py instagram-export.zip \
+  --base-url https://mahmut-saltik-studio.onrender.com \
+  --admin-password '<ADMIN_PASSWORD>'
+```
+
+Önce yalnızca dosya sayısını görmek için güvenli deneme modu kullanılabilir:
+
+```bash
+python tools/import_instagram_export.py instagram-export.zip \
+  --admin-password '<ADMIN_PASSWORD>' \
+  --dry-run
+```
+
+Araç ZIP yol traversal kontrolü yapar, görsel/video dosyalarını JSON sırasına göre işler, mevcut Storage kayıtlarını içerik hash’iyle tekrar kontrol eder ve her dosyayı admin API üzerinden Supabase Storage ile PostgreSQL’e kaydeder. ZIP dosyasını, admin şifresini veya service role anahtarını GitHub’a göndermeyin. Instagram export’unda başkasının paylaştığı, silinmiş veya yalnızca özel viewer içinde kalan içerikler bulunmayabilir; aktarım sonucu admin panelinden silinebilir veya gizlenebilir.
+
 ## Yerel geliştirme
 
 Python 3.12 veya üzeri önerilir.
