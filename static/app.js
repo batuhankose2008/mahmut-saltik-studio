@@ -77,7 +77,7 @@ function renderArtworks() {
   $("#art-grid").innerHTML = list
     .map(
       (art, index) =>
-        `<article class="card ${index % 2 ? "offset" : ""}"><div class="media" data-open="${art.id}">${art.video_url ? `<video src="${art.video_url}" muted playsinline preload="metadata"></video>` : `<img src="${art.image_url}" alt="${escapeHtml(art.title)}" loading="lazy">`}${art.video_url ? '<span class="media-badge">▶ Video</span>' : ""}<button class="favorite" data-favorite="${art.id}" aria-label="Favorile">♡</button></div><div class="card-info"><div><div class="card-meta">${escapeHtml(art.category)} / ${art.code}</div><div class="card-title">${escapeHtml(art.title)}</div><div class="small muted">${escapeHtml(art.medium)} · ${escapeHtml(art.dimensions)}</div></div><button class="icon-btn" data-add="${art.id}" aria-label="Seçkilere ekle">＋</button></div></article>`,
+        `<article class="card ${index % 2 ? "offset" : ""}" style="--card-index:${index}"><div class="media" data-open="${art.id}">${art.video_url ? `<video src="${art.video_url}" muted playsinline preload="metadata"></video>` : `<img src="${art.image_url}" alt="${escapeHtml(art.title)}" loading="lazy">`}${art.video_url ? '<span class="media-badge">▶ Video</span>' : ""}<button class="favorite" data-favorite="${art.id}" aria-label="Favorile">♡</button></div><div class="card-info"><div><div class="card-meta">${escapeHtml(art.category)} / ${art.code}</div><div class="card-title">${escapeHtml(art.title)}</div><div class="small muted">${escapeHtml(art.medium)} · ${escapeHtml(art.dimensions)}</div></div><button class="icon-btn" data-add="${art.id}" aria-label="Seçkilere ekle">＋</button></div></article>`,
     )
     .join("");
   document.querySelectorAll("[data-open]").forEach(
@@ -108,7 +108,7 @@ function renderArchive() {
   const count = $("#archive-count");
   if (count) count.textContent = state.archive.length ? `${state.archive.length} gönderi` : "";
   target.innerHTML = state.archive.length
-    ? state.archive.map((entry) => `<article class="card archive-card"><div class="media">${entry.media_type === "video" ? `<video src="${entry.media_url}" controls playsinline preload="metadata"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title || "Arşiv görseli")}" loading="lazy">`}<span class="media-badge">${escapeHtml(entry.kind)}</span></div><div class="card-info"><div><div class="card-meta">${escapeHtml(entry.source)} / ${formatDate(entry.created_at)}</div><div class="card-title">${escapeHtml(entry.title || "Başlıksız içerik")}</div><div class="small muted">${escapeHtml(entry.caption || "")}</div></div></div></article>`).join("")
+    ? state.archive.map((entry, index) => `<article class="card archive-card" style="--card-index:${index}"><div class="media">${entry.media_type === "video" ? `<video src="${entry.media_url}" controls playsinline preload="metadata"></video>` : `<img src="${entry.media_url}" alt="${escapeHtml(entry.title || "Arşiv görseli")}" loading="lazy">`}<span class="media-badge">${escapeHtml(entry.kind)}</span></div><div class="card-info"><div><div class="card-meta">${escapeHtml(entry.source)} / ${formatDate(entry.created_at)}</div><div class="card-title">${escapeHtml(entry.title || "Başlıksız içerik")}</div><div class="small muted">${escapeHtml(entry.caption || "")}</div></div></div></article>`).join("")
     : '<div class="empty-gallery"><span class="eyebrow">Seçili arşiv</span><p>Atölyeden seçilen gönderiler, videolar ve öne çıkanlar burada sıralanacak.</p></div>';
 }
 
@@ -408,9 +408,8 @@ function bind() {
     localStorage.setItem("studio_theme", dark ? "dark" : "light");
   };
   const navLinks = document.querySelectorAll(".main-nav a");
-  if (navLinks[0]) navLinks[0].hidden = !state.artworks.length;
-  if (navLinks[1]) navLinks[1].hidden = !state.journal.length;
-  if (navLinks[2]) navLinks[2].hidden = !state.profile?.bio;
+  if (navLinks[0]) navLinks[0].hidden = !state.profile?.bio;
+  if (navLinks[1]) navLinks[1].hidden = !state.archive.length;
   const orderButton = $("#order-btn") || $("#hero-order");
   if (orderButton) orderButton.onclick = openOrder;
   document.querySelectorAll("[data-open-order], #about-order").forEach((button) => {

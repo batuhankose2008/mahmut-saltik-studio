@@ -39,3 +39,10 @@ html[data-theme="dark"]{--bg:#151412;--surface:#201e1a;--surface-2:#2b2721;--ink
 .dark-site .archive-card .media img{filter:grayscale(.12) contrast(1.04);}
 .dark-site .archive-card:hover .media img{filter:grayscale(0) contrast(1.06);}
 @media(max-width:850px){.dark-site .hero-portrait{height:520px}.dark-site .about-portrait{min-height:300px}.dark-site .commission-image{min-height:300px;}}
+
+/* Motion polish: içerik hazırken yumuşak, GPU-dostu girişler ve görünür sepet CTA. */
+.cart-trigger{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid #4a4a4a;border-radius:999px;background:transparent;color:var(--paper);font:10px "DM Mono",monospace;text-transform:uppercase;letter-spacing:.1em;transition:transform .25s var(--ease),background .25s,border-color .25s}
+.cart-trigger:hover{transform:translateY(-2px);background:var(--gold);border-color:var(--gold);color:#090909}.cart-trigger sup{color:var(--gold);font-size:10px}.cart-trigger:hover sup{color:#090909}
+.drawer{animation:drawer-in .48s var(--ease) both}.modal-backdrop{animation:backdrop-in .28s ease both}.art-grid .card,.journal-grid .card{animation:card-in .72s var(--ease) both;animation-delay:calc(min(var(--card-index, 0), 8) * 55ms)}
+@keyframes drawer-in{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}@keyframes backdrop-in{from{opacity:0}to{opacity:1}}@keyframes card-in{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.drawer,.modal-backdrop,.art-grid .card,.journal-grid .card{animation:none}}
