@@ -10,6 +10,11 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("SUPABASE_DATABASE_URL")
 
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is required")
+if not DATABASE_URL.lower().startswith(("postgresql://", "postgres://")):
+    raise RuntimeError(
+        "DATABASE_URL PostgreSQL bağlantısı olmalı. Supabase bağlantısını kullanın; "
+        "MySQL/TiDB bağlantıları bu FastAPI projesiyle uyumlu değil."
+    )
 
 
 @contextmanager
