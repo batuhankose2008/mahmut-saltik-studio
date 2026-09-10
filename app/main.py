@@ -51,6 +51,12 @@ class LoginInput(BaseModel):
     password: str
 
 
+class AdminPasswordChange(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=12, max_length=128)
+    confirm_password: str = Field(min_length=12, max_length=128)
+
+
 class ReviewInput(BaseModel):
     artwork_id: str
     purchase_code: str = Field(pattern=r"^MS-[A-Z0-9]{6}$")
@@ -197,12 +203,27 @@ def login(data: LoginInput):
 @app.post("/api/admin/login")
 def admin_login(password: str = Form(...)):
     expected = os.getenv("ADMIN_PASSWORD", "")
-    if not expected or not hmac_compare(password, expected):
+    stored = query_one("SELECT password_hash FROM admin_settings WHERE id = 1")
+    password_ok = verify_password(password, stored["password_hash"]) if stored and stored.get("password_hash") else bool(expected) and hmac_compare(password, expected)
+    if not password_ok:
         raise HTTPException(status_code=401, detail="Yönetici şifresi hatalı.")
     admin = {"id": "admin", "email": "admin@studio.local", "name": "Mahmut Saltık", "role": "admin"}
     response = JSONResponse({"user": admin})
     response.set_cookie("studio_session", create_token(admin), httponly=True, samesite="lax", secure=os.getenv("COOKIE_SECURE", "false").lower() == "true", max_age=60 * 60 * 24 * 14)
     return response
+
+
+@app.post("/api/admin/security/password")
+def change_admin_password(data: AdminPasswordChange, user: dict = Depends(admin_user)):
+    if data.new_password != data.confirm_password:
+        raise HTTPException(status_code=422, detail="Yeni şifre ve tekrarı aynı olmalı.")
+    expected = os.getenv("ADMIN_PASSWORD", "")
+    stored = query_one("SELECT password_hash FROM admin_settings WHERE id = 1")
+    current_ok = verify_password(data.current_password, stored["password_hash"]) if stored and stored.get("password_hash") else bool(expected) and hmac_compare(data.current_password, expected)
+    if not current_ok:
+        raise HTTPException(status_code=401, detail="Mevcut admin şifresi hatalı.")
+    query_one("UPDATE admin_settings SET password_hash = %s, updated_at = now() WHERE id = 1 RETURNING id", (hash_password(data.new_password),))
+    return {"success": True, "message": "Admin şifresi güncellendi. Yeni girişlerde yeni şifreyi kullanın."}
 
 
 def hmac_compare(first: str, second: str) -> bool:

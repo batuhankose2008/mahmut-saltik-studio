@@ -43,6 +43,8 @@ Uygulama, Render’ın kalıcı olmayan dosya sistemine bağımlı kalmamak içi
 - Günlük kaydını öne çıkarma, yayınlama/gizleme ve silme.
 - Müşteri yorumlarını onaylama veya silme.
 - Açıklayıcı hata mesajları ve kullanıcı dostu toast bildirimleri.
+- Ayarlar & güvenlik sekmesinden kalıcı admin şifresi değiştirme.
+- Public footer’da gizlilik, güvenlik ve kullanım koşulları bağlantıları.
 
 ## Teknoloji
 
@@ -219,6 +221,7 @@ Testler parola/JWT akışını, müşteri kodu doğrulamasını, migration sıra
 | `PATCH` | `/api/admin/artworks/{id}` | Eseri günceller. |
 | `GET` | `/api/profile` | Public profil bilgisini döndürür. |
 | `PATCH` | `/api/admin/profile` | Admin profilini günceller. |
+| `POST` | `/api/admin/security/password` | Mevcut admin şifresini doğrulayarak yeni şifre kaydeder. |
 | `GET` | `/api/journal` | Yayındaki günlük kayıtlarını döndürür. |
 | `POST` | `/api/admin/journal` | Admin günlük kaydı oluşturur. |
 | `POST` | `/api/commission/reference` | Oturum açmış müşterinin referans görselini yükler. |
@@ -227,7 +230,7 @@ Testler parola/JWT akışını, müşteri kodu doğrulamasını, migration sıra
 
 ## Güvenlik notları
 
-Service role ve secret key’ler Row Level Security’yi aşabilecek yetkili server-side anahtarlardır. Bu nedenle yalnızca Render Environment alanında tutulmalıdır. Public API, `include_unpublished=true` isteğini admin oturumu olmadan `403` ile reddeder. Parolalar düz metin olarak değil, scrypt tabanlı özet olarak saklanır. Oturum cookie’si HttpOnly olarak ayarlanır.
+Service role ve secret key’ler Row Level Security’yi aşabilecek yetkili server-side anahtarlardır. Bu nedenle yalnızca Render Environment alanında tutulmalıdır. Public API, `include_unpublished=true` isteğini admin oturumu olmadan `403` ile reddeder. Parolalar düz metin olarak değil, scrypt tabanlı özet olarak saklanır. İlk admin parolası Render’daki `ADMIN_PASSWORD` değişkeninden alınır; panelden değiştirildikten sonra hash’lenmiş değer Supabase PostgreSQL’deki `admin_settings` tablosunda tutulur. Oturum cookie’si HttpOnly ve SameSite olarak ayarlanır. Bu sürümde 2FA bulunmaz; güçlü, benzersiz bir parola kullanılması gerekir.
 
 ## Tasarım yaklaşımı
 

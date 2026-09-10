@@ -64,7 +64,7 @@ async function dashboard() {
   renderTab();
 }
 function renderShell() {
-  document.body.innerHTML = `<div class="admin-shell"><header class="admin-nav"><div class="container"><a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık / Yönetim</a><button id="logout" class="btn" style="color:var(--paper);border-color:rgba(243,240,233,.3)">Siteden çık ↗</button></div></header><div class="container admin-layout"><aside class="side"><button class="active" data-tab="works">Eserler</button><button data-tab="upload">Yeni yükleme</button><button data-tab="archive">Instagram arşivi</button><button data-tab="commissions">Sipariş talepleri</button><button data-tab="reviews">Yorumlar <span id="pending-count"></span></button><button data-tab="journal">Stüdyo Günlüğü</button><button data-tab="profile">Profil</button><button data-tab="settings">Kurulum notları</button></aside><main id="dashboard-main"></main></div></div>`;
+  document.body.innerHTML = `<div class="admin-shell"><header class="admin-nav"><div class="container"><a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık / Yönetim</a><button id="logout" class="btn" style="color:var(--paper);border-color:rgba(243,240,233,.3)">Siteden çık ↗</button></div></header><div class="container admin-layout"><aside class="side"><button class="active" data-tab="works">Eserler</button><button data-tab="upload">Yeni yükleme</button><button data-tab="archive">Instagram arşivi</button><button data-tab="commissions">Sipariş talepleri</button><button data-tab="reviews">Yorumlar <span id="pending-count"></span></button><button data-tab="journal">Stüdyo Günlüğü</button><button data-tab="profile">Profil</button><button data-tab="settings">Ayarlar &amp; güvenlik</button></aside><main id="dashboard-main"></main></div></div>`;
   document.querySelectorAll("[data-tab]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -111,7 +111,7 @@ function commissionsView() {
   return `<div class="dash-head"><div><div class="eyebrow">Özel çizim</div><h1>Sipariş talepleri.</h1><p class="muted">Ana sayfadaki formdan gelen talepler burada kalıcı olarak tutulur.</p></div></div><div class="panel"><h3>${A.commissions.length} talep</h3>${A.commissions.length ? A.commissions.map((request) => `<div class="review"><div class="review-body"><div class="card-meta">${esc(request.drawing_type)} · ${formatDate(request.created_at)} · ${esc(request.channel)}</div><strong>${esc(request.name)}${request.email ? ` · ${esc(request.email)}` : ""}</strong><p>${esc(request.details)}</p>${request.reference_url ? `<a class="small" href="${esc(request.reference_url)}" target="_blank" rel="noreferrer">Referans görselini aç ↗</a>` : ""}</div><div class="review-actions"><select data-commission-status="${request.id}"><option value="new" ${request.status === "new" ? "selected" : ""}>Yeni</option><option value="contacted" ${request.status === "contacted" ? "selected" : ""}>İletişime geçildi</option><option value="completed" ${request.status === "completed" ? "selected" : ""}>Tamamlandı</option><option value="cancelled" ${request.status === "cancelled" ? "selected" : ""}>İptal</option></select><button class="btn" data-commission-delete="${request.id}">Sil</button></div></div>`).join("") : '<p class="muted">Henüz sipariş talebi yok.</p>'}</div>`;
 }
 function settingsView() {
-  return `<div class="dash-head"><div><div class="eyebrow">Kurulum notları</div><h1>Basitçe yönet.</h1></div></div><div class="panel"><h3>Günlük kullanım</h3><p>Yeni bir eser için <strong>Yeni yükleme</strong> sekmesine gir, görseli veya MP4 videoyu seç ve yayınla. Sistem otomatik benzersiz bir MS kodu üretir.</p><p>Müşteri, satın aldığı eserin MS kodunu girerek yorum bırakabilir. Yorumlar önce burada bekler; sen onayladığında ana sayfada görünür.</p><p class="muted small">Sipariş ve ödeme bu sitede alınmaz. Müşteri, sepet veya özel çizim formundan WhatsApp / Instagram’a yönlendirilir.</p></div>`;
+  return `<div class="dash-head"><div><div class="eyebrow">Ayarlar &amp; güvenlik</div><h1>Kontrol sende.</h1><p class="muted">Site ayarlarını, gizlilik bilgisini ve yönetici erişimini buradan yönet.</p></div></div><div class="panel"><h3>Admin şifresini değiştir</h3><p class="muted small">Yeni şifre en az 12 karakter olmalı. Değişiklikten sonra sonraki girişlerde yeni şifre geçerli olur.</p><form id="password-form"><label class="field">Mevcut şifre<input name="current_password" type="password" autocomplete="current-password" required></label><label class="field">Yeni şifre<input name="new_password" type="password" minlength="12" autocomplete="new-password" required></label><label class="field">Yeni şifre tekrarı<input name="confirm_password" type="password" minlength="12" autocomplete="new-password" required></label><button class="btn btn-dark">Şifreyi güncelle ↗</button></form></div><div class="panel security-links"><h3>Gizlilik ve güvenlik</h3><p>Site ödeme bilgisi saklamaz. Yorumlar admin onayından geçer. Medyalar Supabase Storage’da, veriler PostgreSQL’de tutulur. Admin oturumu HttpOnly cookie ile korunur.</p><p class="small"><a href="/privacy.html" target="_blank" rel="noreferrer">Gizlilik metnini aç ↗</a> <a href="/terms.html" target="_blank" rel="noreferrer">Kullanım koşullarını aç ↗</a></p><p class="muted small">Bu projede 2FA etkin değildir. Güçlü ve benzersiz bir admin şifresi kullanın; service role anahtarını tarayıcıya veya GitHub’a koymayın.</p></div><div class="panel"><h3>Günlük kullanım</h3><p>Yeni bir eser için <strong>Yeni yükleme</strong> sekmesine gir, görseli veya MP4 videoyu seç ve yayınla. Sistem otomatik benzersiz bir MS kodu üretir.</p><p>Müşteri, satın aldığı eserin MS kodunu girerek yorum bırakabilir. Yorumlar önce burada bekler; sen onayladığında ana sayfada görünür.</p><p class="muted small">Sipariş ve ödeme bu sitede alınmaz. Müşteri, sepet veya özel çizim formundan WhatsApp / Instagram’a yönlendirilir.</p></div>`;
 }
 function profileView() {
   const profile = A.profile || {};
@@ -233,6 +233,18 @@ function bindTab() {
         await dashboard();
         A.tab = "profile";
         renderTab();
+      } catch (error) {
+        toast(error.message);
+      }
+    };
+  const passwordForm = $("#password-form");
+  if (passwordForm)
+    passwordForm.onsubmit = async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/admin/security/password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(new FormData(passwordForm))) });
+        passwordForm.reset();
+        toast("Admin şifresi güncellendi.", "success");
       } catch (error) {
         toast(error.message);
       }

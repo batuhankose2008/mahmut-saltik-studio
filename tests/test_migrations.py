@@ -11,5 +11,6 @@ def test_migrations_are_numbered_and_present():
         "005_remove_demo_seed_content.sql",
         "006_social_archive.sql",
         "007_commission_requests.sql",
+        "008_admin_security.sql",
     ]
     assert all(migration.read_text(encoding="utf-8").strip() for migration in migrations)
