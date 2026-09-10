@@ -417,6 +417,14 @@ boot();
 // Motion fallback: Higgsfield hero video becomes an optional enhancement when a paid asset is available.
 // The public site stays animated without depending on a remote generation job.
 function installMotionFallback() {
+  const progress = document.querySelector("#scroll-progress-bar");
+  const updateProgress = () => {
+    if (!progress) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+  };
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  updateProgress();
   const header = document.querySelector(".hero-v2");
   if (!header || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const visual = document.querySelector(".hero-v2-visual");
