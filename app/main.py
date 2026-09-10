@@ -498,6 +498,16 @@ def admin_page():
     return FileResponse(ROOT / "static" / "admin.html")
 
 
+@app.get("/privacy.html")
+def privacy_page():
+    return FileResponse(ROOT / "static" / "privacy.html")
+
+
+@app.get("/terms.html")
+def terms_page():
+    return FileResponse(ROOT / "static" / "terms.html")
+
+
 @app.get("/robots.txt")
 def robots():
     return FileResponse(ROOT / "static" / "robots.txt", media_type="text/plain")
