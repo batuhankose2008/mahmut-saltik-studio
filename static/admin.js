@@ -3,6 +3,7 @@ const A = {
   reviews: [],
   journal: [],
   archive: [],
+  commissions: [],
   profile: null,
   tab: "works",
   user: null,
@@ -51,18 +52,19 @@ function login() {
   };
 }
 async function dashboard() {
-  [A.artworks, A.reviews, A.journal, A.profile, A.archive] = await Promise.all([
+  [A.artworks, A.reviews, A.journal, A.profile, A.archive, A.commissions] = await Promise.all([
     api("/api/artworks?include_unpublished=true"),
     api("/api/admin/reviews"),
     api("/api/admin/journal"),
     api("/api/profile"),
     api("/api/admin/archive"),
+    api("/api/admin/commission-requests"),
   ]);
   renderShell();
   renderTab();
 }
 function renderShell() {
-  document.body.innerHTML = `<div class="admin-shell"><header class="admin-nav"><div class="container"><a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık / Yönetim</a><button id="logout" class="btn" style="color:var(--paper);border-color:rgba(243,240,233,.3)">Siteden çık ↗</button></div></header><div class="container admin-layout"><aside class="side"><button class="active" data-tab="works">Eserler</button><button data-tab="upload">Yeni yükleme</button><button data-tab="archive">Instagram arşivi</button><button data-tab="reviews">Yorumlar <span id="pending-count"></span></button><button data-tab="journal">Stüdyo Günlüğü</button><button data-tab="profile">Profil</button><button data-tab="settings">Kurulum notları</button></aside><main id="dashboard-main"></main></div></div>`;
+  document.body.innerHTML = `<div class="admin-shell"><header class="admin-nav"><div class="container"><a href="/" class="brand"><span class="mark">M</span> Mahmut Saltık / Yönetim</a><button id="logout" class="btn" style="color:var(--paper);border-color:rgba(243,240,233,.3)">Siteden çık ↗</button></div></header><div class="container admin-layout"><aside class="side"><button class="active" data-tab="works">Eserler</button><button data-tab="upload">Yeni yükleme</button><button data-tab="archive">Instagram arşivi</button><button data-tab="commissions">Sipariş talepleri</button><button data-tab="reviews">Yorumlar <span id="pending-count"></span></button><button data-tab="journal">Stüdyo Günlüğü</button><button data-tab="profile">Profil</button><button data-tab="settings">Kurulum notları</button></aside><main id="dashboard-main"></main></div></div>`;
   document.querySelectorAll("[data-tab]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -85,6 +87,7 @@ function renderTab() {
   if (A.tab === "reviews") main.innerHTML = reviewsView();
   if (A.tab === "journal") main.innerHTML = journalView();
   if (A.tab === "archive") main.innerHTML = archiveView();
+  if (A.tab === "commissions") main.innerHTML = commissionsView();
   if (A.tab === "profile") main.innerHTML = profileView();
   if (A.tab === "settings") main.innerHTML = settingsView();
   bindTab();
@@ -103,6 +106,9 @@ function reviewsView() {
 }
 function archiveView() {
   return `<div class="dash-head"><div><div class="eyebrow">Instagram’dan bağımsız arşiv</div><h1>Öne çıkanlar.</h1><p class="muted">Export’tan seçilen gönderi ve videoları burada sıralı biçimde yayınla.</p></div></div><div class="panel"><h3>Arşive medya ekle</h3><form id="archive-form" enctype="multipart/form-data"><label class="field">İçerik türü<select name="kind"><option value="highlight">Öne çıkan</option><option value="post">Gönderi</option><option value="video">Video</option></select></label><label class="field">Başlık<input name="title"></label><label class="field">Açıklama<textarea name="caption" rows="4"></textarea></label><label class="field">Sıra numarası<input name="sort_order" type="number" min="0" value="${A.archive.length}"></label><label class="field"><input type="checkbox" name="published"> Hemen yayınla</label><div class="dropzone"><strong>Görsel veya video seç</strong><input name="file" type="file" accept="image/*,video/*" required></div><button class="btn btn-dark" style="margin-top:18px">Arşive ekle ↗</button></form></div><div class="panel" style="margin-top:20px"><h3>Sıralı içerikler</h3>${A.archive.length ? A.archive.map((entry) => `<div class="review"><div class="review-body"><div class="card-meta">${entry.sort_order} · ${esc(entry.kind)} · ${entry.published ? "Yayında" : "Taslak"}</div><strong>${esc(entry.title || "Başlıksız içerik")}</strong><p>${esc(entry.caption || "Açıklama yok")}</p></div><div class="review-actions"><button class="btn" data-archive-toggle="${entry.id}" data-published="${entry.published}">${entry.published ? "Gizle" : "Yayınla"}</button><button class="btn" data-archive-delete="${entry.id}">Sil</button></div></div>`).join("") : '<p class="muted">Henüz arşiv içeriği yok.</p>'}</div>`;
+}
+function commissionsView() {
+  return `<div class="dash-head"><div><div class="eyebrow">Özel çizim</div><h1>Sipariş talepleri.</h1><p class="muted">Ana sayfadaki formdan gelen talepler burada kalıcı olarak tutulur.</p></div></div><div class="panel"><h3>${A.commissions.length} talep</h3>${A.commissions.length ? A.commissions.map((request) => `<div class="review"><div class="review-body"><div class="card-meta">${esc(request.drawing_type)} · ${formatDate(request.created_at)} · ${esc(request.channel)}</div><strong>${esc(request.name)}${request.email ? ` · ${esc(request.email)}` : ""}</strong><p>${esc(request.details)}</p>${request.reference_url ? `<a class="small" href="${esc(request.reference_url)}" target="_blank" rel="noreferrer">Referans görselini aç ↗</a>` : ""}</div><div class="review-actions"><select data-commission-status="${request.id}"><option value="new" ${request.status === "new" ? "selected" : ""}>Yeni</option><option value="contacted" ${request.status === "contacted" ? "selected" : ""}>İletişime geçildi</option><option value="completed" ${request.status === "completed" ? "selected" : ""}>Tamamlandı</option><option value="cancelled" ${request.status === "cancelled" ? "selected" : ""}>İptal</option></select></div></div>`).join("") : '<p class="muted">Henüz sipariş talebi yok.</p>'}</div>`;
 }
 function settingsView() {
   return `<div class="dash-head"><div><div class="eyebrow">Kurulum notları</div><h1>Basitçe yönet.</h1></div></div><div class="panel"><h3>Günlük kullanım</h3><p>Yeni bir eser için <strong>Yeni yükleme</strong> sekmesine gir, görseli veya MP4 videoyu seç ve yayınla. Sistem otomatik benzersiz bir MS kodu üretir.</p><p>Müşteri, satın aldığı eserin MS kodunu girerek yorum bırakabilir. Yorumlar önce burada bekler; sen onayladığında ana sayfada görünür.</p><p class="muted small">Sipariş ve ödeme bu sitede alınmaz. Müşteri, sepet veya özel çizim formundan WhatsApp / Instagram’a yönlendirilir.</p></div>`;
@@ -158,6 +164,16 @@ function bindTab() {
         }
       }),
   );
+  document.querySelectorAll("[data-commission-status]").forEach((select) => {
+    select.onchange = async () => {
+      try {
+        await api(`/api/admin/commission-requests/${select.dataset.commissionStatus}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: select.value }) });
+        toast("Sipariş durumu güncellendi.");
+      } catch (error) {
+        toast(error.message);
+      }
+    };
+  });
   const form = $("#art-form");
   const fileInput = form?.elements.file;
   const preview = $("#media-preview");

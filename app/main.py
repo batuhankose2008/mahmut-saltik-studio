@@ -93,6 +93,19 @@ class ArchiveUpdate(BaseModel):
     published: Optional[bool] = None
 
 
+class CommissionInput(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    email: Optional[EmailStr] = None
+    drawing_type: str = Field(min_length=2, max_length=100)
+    details: str = Field(min_length=4, max_length=3000)
+    reference_url: Optional[str] = None
+    channel: str = Field(pattern=r"^(whatsapp|instagram)$")
+
+
+class CommissionStatusUpdate(BaseModel):
+    status: str = Field(pattern=r"^(new|contacted|completed|cancelled)$")
+
+
 @app.exception_handler(StarletteHTTPException)
 async def http_error(request: Request, exc: StarletteHTTPException):
     if request.url.path.startswith("/api/"):
@@ -143,6 +156,14 @@ def journal():
 @app.get("/api/archive")
 def public_archive():
     return query_all("SELECT id, source, source_id, kind, title, caption, media_url, media_type, sort_order, created_at FROM social_archive WHERE published = TRUE ORDER BY sort_order ASC, created_at ASC")
+
+
+@app.post("/api/commission-requests")
+def create_commission_request(data: CommissionInput, user: Optional[dict] = Depends(optional_user)):
+    return query_one(
+        "INSERT INTO commission_requests (user_id, name, email, drawing_type, details, reference_url, channel) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id, status, created_at",
+        (user["id"] if user and user["role"] != "admin" else None, data.name, data.email, data.drawing_type, data.details, data.reference_url, data.channel),
+    )
 
 
 @app.get("/api/artworks")
@@ -295,6 +316,19 @@ def delete_journal(entry_id: str, user: dict = Depends(admin_user)):
 @app.get("/api/admin/archive")
 def admin_archive(user: dict = Depends(admin_user)):
     return query_all("SELECT * FROM social_archive ORDER BY sort_order ASC, created_at ASC")
+
+
+@app.get("/api/admin/commission-requests")
+def admin_commission_requests(user: dict = Depends(admin_user)):
+    return query_all("SELECT id, name, email, drawing_type, details, reference_url, channel, status, created_at FROM commission_requests ORDER BY created_at DESC")
+
+
+@app.patch("/api/admin/commission-requests/{request_id}")
+def update_commission_request(request_id: str, data: CommissionStatusUpdate, user: dict = Depends(admin_user)):
+    row = query_one("UPDATE commission_requests SET status = %s WHERE id = %s RETURNING id, status", (data.status, request_id))
+    if not row:
+        raise HTTPException(status_code=404, detail="Sipariş talebi bulunamadı.")
+    return row
 
 
 @app.post("/api/admin/archive")

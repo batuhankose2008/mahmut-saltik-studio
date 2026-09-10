@@ -208,10 +208,16 @@ async function sendMessage(message, channel = "whatsapp") {
 }
 function openOrder() {
   const modal = openModal(
-    `<div class="modal-head"><div><div class="eyebrow">Atölyeden sana</div><h2>Bir hikâye çizelim.</h2></div><button class="icon-btn" data-close>×</button></div><label class="field">Çizim türü<select id="order-type"><option>Karakalem portre</option><option>Yağlı boya portre</option><option>Renkli portre</option><option>Evcil hayvan portresi</option><option>Dijital illüstrasyon</option></select></label><label class="field">Detay<textarea id="order-detail" rows="5" placeholder="Kimi çizelim, hangi duyguyu taşısın?"></textarea></label><label class="field">Referans fotoğrafı <span class="muted">(isteğe bağlı)</span><input id="order-reference" type="file" accept="image/jpeg,image/png,image/webp"></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-dark" id="send-whatsapp">WhatsApp’tan yaz ↗</button><button class="btn" id="send-instagram">Instagram’dan yaz ↗</button></div><p class="small muted">WhatsApp mesajı hazır açılır. Instagram seçilirse mesaj clipboard’a kopyalanır ve profil açılır.</p><p class="small muted">Ödeme sitede alınmaz. Referans yüklemek için hesabına giriş yapmalısın.</p>`,
+    `<div class="modal-head"><div><div class="eyebrow">Atölyeden sana</div><h2>Bir hikâye çizelim.</h2></div><button class="icon-btn" data-close>×</button></div><label class="field">Ad soyad<input id="order-name" required placeholder="Adınız ve soyadınız"></label><label class="field">E-posta <span class="muted">(isteğe bağlı)</span><input id="order-email" type="email" placeholder="ornek@email.com"></label><label class="field">Çizim türü<select id="order-type"><option>Karakalem portre</option><option>Yağlı boya portre</option><option>Renkli portre</option><option>Evcil hayvan portresi</option><option>Dijital illüstrasyon</option></select></label><label class="field">Detay<textarea id="order-detail" rows="5" placeholder="Kimi çizelim, hangi duyguyu taşısın?"></textarea></label><label class="field">Referans fotoğrafı <span class="muted">(isteğe bağlı)</span><input id="order-reference" type="file" accept="image/jpeg,image/png,image/webp"></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-dark" id="send-whatsapp">WhatsApp’tan yaz ↗</button><button class="btn" id="send-instagram">Instagram’dan yaz ↗</button></div><p class="small muted">Talep admin paneline kaydedilir. WhatsApp mesajı hazır açılır; Instagram seçilirse mesaj clipboard’a kopyalanır.</p>`,
   );
   const collectOrderMessage = async () => {
+    const name = modal.querySelector("#order-name").value.trim();
+    const email = modal.querySelector("#order-email").value.trim();
     const detail = modal.querySelector("#order-detail").value.trim();
+    if (!name) {
+      toast("Lütfen adınızı ve soyadınızı yazın.");
+      return null;
+    }
     if (!detail) {
       toast("Lütfen çizim detayını yazın.");
       return null;
@@ -231,13 +237,18 @@ function openOrder() {
       }
     }
     const message = `Merhaba Mahmut Hocam, kişiye özel ${modal.querySelector("#order-type").value} siparişi vermek istiyorum.\n\nDetaylarım: ${detail}${reference ? `\n\nReferans fotoğrafı: ${reference}` : ""}`;
-    return message;
+    return { message, name, email, drawingType: modal.querySelector("#order-type").value, detail, reference };
   };
   const submitOrder = async (channel) => {
     try {
-      const message = await collectOrderMessage(modal);
-      if (!message) return;
-      await sendMessage(message, channel);
+      const order = await collectOrderMessage(modal);
+      if (!order) return;
+      await api("/api/commission-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: order.name, email: order.email || null, drawing_type: order.drawingType, details: order.detail, reference_url: order.reference || null, channel }),
+      });
+      await sendMessage(order.message, channel);
       modal.remove();
     } catch (error) {
       toast(error.message);
