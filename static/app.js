@@ -334,8 +334,10 @@ function renderProfile() {
   if (aboutBio) aboutBio.textContent = state.profile.bio || "";
   const aboutHeading = $("#about-heading");
   if (aboutHeading) aboutHeading.textContent = state.profile.display_name || "Mahmut Saltık";
-  $("#art-count").textContent = state.artworks.length;
-  $("#journal-count").textContent = state.journal.length;
+  const artCount = $("#art-count");
+  if (artCount) artCount.textContent = state.artworks.length;
+  const journalCount = $("#journal-count");
+  if (journalCount) journalCount.textContent = state.journal.length;
 }
 function renderJournal() {
   const target = $("#journal-grid");
