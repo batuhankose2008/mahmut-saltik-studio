@@ -110,6 +110,20 @@ function renderArchive() {
     : '<div class="empty-gallery"><span class="eyebrow">Seçili arşiv</span><p>Atölyeden seçilen gönderiler, videolar ve öne çıkanlar burada sıralanacak.</p></div>';
 }
 
+function renderReferenceVisuals() {
+  const images = state.archive.filter((entry) => entry.media_type === "image" && entry.media_url);
+  const assign = (selector, entry) => {
+    const node = $(selector);
+    if (!node || !entry) return;
+    node.src = entry.media_url;
+    node.alt = entry.title || "Mahmut Saltık çalışması";
+    node.closest(".hero-portrait, .about-portrait, .commission-image")?.classList.add("has-media");
+  };
+  assign("#hero-art", images[0]);
+  assign("#about-art", images[1] || images[0]);
+  assign("#commission-art", images[2] || images[0]);
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(
     /[&<>'"]/g,
@@ -332,6 +346,8 @@ function renderProfile() {
   if (profileBio) profileBio.textContent = state.profile.bio || "";
   const aboutBio = $("#about-bio");
   if (aboutBio) aboutBio.textContent = state.profile.bio || "";
+  const aboutSecondary = $("#about-bio-secondary");
+  if (aboutSecondary) aboutSecondary.textContent = state.profile.headline || "";
   const aboutHeading = $("#about-heading");
   if (aboutHeading) aboutHeading.textContent = state.profile.display_name || "Mahmut Saltık";
   const artCount = $("#art-count");
@@ -448,6 +464,7 @@ async function boot() {
     renderHighlights();
     renderArtworks();
     renderArchive();
+    renderReferenceVisuals();
     bind();
   } catch (error) {
     toast(error.message);
