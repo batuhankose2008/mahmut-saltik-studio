@@ -35,7 +35,7 @@ const toast = (m) => {
   setTimeout(() => n.remove(), 2600);
 };
 function login() {
-  document.body.innerHTML = `<main style="min-height:100vh;background:var(--ink);display:grid;place-items:center;padding:20px"><form id="login-form" class="modal" style="max-width:440px"><a class="brand" href="/"><span class="mark">M</span> Mahmut Saltık</a><div class="eyebrow" style="margin-top:55px">Yönetim alanı</div><h2>Hoş geldin,<br><i>Mahmut.</i></h2><label class="field">Güvenlik şifresi<input id="password" type="password" autofocus required></label><button class="btn btn-dark" style="width:100%">Panele gir ↗</button><p id="login-error" class="small muted"></p></form></main>`;
+  document.body.innerHTML = `<main style="min-height:100vh;background:var(--ink);display:grid;place-items:center;padding:20px"><form id="login-form" class="modal" style="max-width:440px"><a class="brand" href="/"><span class="mark">M</span> Mahmut Saltık</a><div class="eyebrow" style="margin-top:55px">Yönetim alanı</div><h2>Hoş geldin,<br><i>Mahmut.</i></h2><label class="field">Güvenlik şifresi<input id="password" name="password" type="password" autocomplete="current-password" autofocus required></label><button class="btn btn-dark" style="width:100%" type="submit">Panele gir ↗</button><p id="login-error" class="small muted" role="alert"></p><p class="small muted">Şifreyi Ayarlar &amp; güvenlik bölümünde değiştirdiysen son belirlediğin yeni şifreyi kullan.</p></form></main>`;
   $("#login-form").onsubmit = async (e) => {
     e.preventDefault();
     try {
