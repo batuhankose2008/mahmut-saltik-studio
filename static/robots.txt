@@ -2,4 +2,5 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
-Sitemap: /sitemap.xml
+Disallow: /static/uploads/
+Sitemap: https://mahmut-saltik-studio.onrender.com/sitemap.xml
