@@ -180,12 +180,17 @@ def artworks(include_unpublished: bool = False, user: Optional[dict] = Depends(o
     return query_all(f"SELECT id, title, slug, category, description, image_url, video_url, price_label, available, featured, published, medium, dimensions, code, sort_order, created_at FROM artworks {where} ORDER BY featured DESC, sort_order ASC, created_at DESC")
 
 
+def public_user(user: dict) -> dict:
+    """JSON yanıtlarında UUID gibi veritabanı tiplerini güvenli biçimde metne çevirir."""
+    return {"id": str(user["id"]), "email": user["email"], "name": user["name"], "role": user["role"]}
+
+
 @app.post("/api/auth/register")
 def register(data: RegisterInput):
     if query_one("SELECT id FROM users WHERE lower(email) = lower(%s)", (data.email,)):
         raise HTTPException(status_code=409, detail="Bu e-posta zaten kayıtlı.")
     user = query_one("INSERT INTO users (email, password_hash, name, role) VALUES (%s, %s, %s, 'user') RETURNING id, email, name, role", (data.email, hash_password(data.password), data.name))
-    response = JSONResponse({"user": user})
+    response = JSONResponse({"user": public_user(user)})
     response.set_cookie("studio_session", create_token(user), httponly=True, samesite="lax", secure=os.getenv("COOKIE_SECURE", "false").lower() == "true", max_age=60 * 60 * 24 * 14)
     return response
 
@@ -195,7 +200,7 @@ def login(data: LoginInput):
     user = query_one("SELECT id, email, name, role, password_hash FROM users WHERE lower(email) = lower(%s)", (data.email,))
     if not user or not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="E-posta veya şifre hatalı.")
-    response = JSONResponse({"user": {key: user[key] for key in ("id", "email", "name", "role")}})
+    response = JSONResponse({"user": public_user(user)})
     response.set_cookie("studio_session", create_token(user), httponly=True, samesite="lax", secure=os.getenv("COOKIE_SECURE", "false").lower() == "true", max_age=60 * 60 * 24 * 14)
     return response
 
