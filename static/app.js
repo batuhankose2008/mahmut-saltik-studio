@@ -261,7 +261,7 @@ function openOrder() {
 }
 function openAuth() {
   const modal = openModal(
-    `<div class="modal-head"><div><div class="eyebrow">Studio üyeliği</div><h2>Hesabınla devam et.</h2></div><button class="icon-btn" data-close>×</button></div><div id="auth-message" class="small muted"></div><label class="field">Ad soyad<input id="auth-name" placeholder="Kayıtta gerekli" /></label><label class="field">E-posta<input id="auth-email" type="email" /></label><label class="field">Şifre<input id="auth-password" type="password" minlength="8" /></label><div style="display:flex;gap:10px"><button class="btn btn-dark" id="register">Hesap oluştur</button><button class="btn" id="login">Giriş yap</button></div>`,
+    `<div class="modal-head"><div><div class="eyebrow">Studio üyeliği</div><h2>Hesabınla devam et.</h2></div><button class="icon-btn" data-close>×</button></div><p class="small muted">Yalnızca e-posta ve şifre yeterli. E-posta doğrulaması veya iki aşamalı doğrulama yoktur.</p><div id="auth-message" class="small muted" role="alert"></div><label class="field">E-posta<input id="auth-email" type="email" autocomplete="email" required /></label><label class="field">Şifre<input id="auth-password" type="password" minlength="8" autocomplete="current-password" required /></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-dark" id="register" type="button">Hesap oluştur</button><button class="btn" id="login" type="button">Giriş yap</button></div>`,
   );
   const run = async (mode) => {
     try {
@@ -271,18 +271,25 @@ function openAuth() {
         body: JSON.stringify({
           email: $("#auth-email").value,
           password: $("#auth-password").value,
-          name: $("#auth-name").value,
+          name: ($("#auth-email").value.split("@")[0].length >= 2 ? $("#auth-email").value.split("@")[0] : "Üye"),
         }),
       });
       state.user = data.user;
-      toast("Giriş başarılı.");
+      toast(mode === "register" ? "Üyeliğin oluşturuldu." : "Giriş başarılı.", "success");
       modal.remove();
+      updateAccountButton();
     } catch (error) {
       $("#auth-message").textContent = error.message;
     }
   };
   $("#register").onclick = () => run("register");
   $("#login").onclick = () => run("login");
+}
+function updateAccountButton() {
+  const button = $("#account-btn");
+  if (!button) return;
+  button.textContent = state.user ? `${state.user.name || "Hesabım"} ↗` : "Üyelik / Giriş";
+  button.title = state.user ? "Hesap bilgileri" : "Üye ol veya giriş yap";
 }
 function openCart() {
   const drawer = document.createElement("div");
@@ -417,6 +424,7 @@ function bind() {
   });
   const accountButton = $("#account-btn");
   if (accountButton) accountButton.onclick = openAuth;
+  updateAccountButton();
   const cartButton = $("#cart-btn");
   if (cartButton) cartButton.onclick = openCart;
   $("#instagram-profile").onclick = () => {
