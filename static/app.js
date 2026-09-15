@@ -260,6 +260,17 @@ function openOrder() {
   modal.querySelector("#send-instagram").onclick = () => submitOrder("instagram");
 }
 function openAuth() {
+  if (state.user) {
+    const modal = openModal(`<div class="modal-head"><div><div class="eyebrow">Studio üyeliği</div><h2>Hesabın açık.</h2></div><button class="icon-btn" data-close>×</button></div><p class="muted">${escapeHtml(state.user.email)}</p><button class="btn btn-dark" id="logout-user" type="button">Oturumu kapat</button>`);
+    $("#logout-user").onclick = async () => {
+      await api("/api/auth/logout", { method: "POST" });
+      state.user = null;
+      modal.remove();
+      updateAccountButton();
+      toast("Oturum kapatıldı.", "success");
+    };
+    return;
+  }
   const modal = openModal(
     `<div class="modal-head"><div><div class="eyebrow">Studio üyeliği</div><h2>Hesabınla devam et.</h2></div><button class="icon-btn" data-close>×</button></div><p class="small muted">Yalnızca e-posta ve şifre yeterli. E-posta doğrulaması veya iki aşamalı doğrulama yoktur.</p><div id="auth-message" class="small muted" role="alert"></div><label class="field">E-posta<input id="auth-email" type="email" autocomplete="email" required /></label><label class="field">Şifre<input id="auth-password" type="password" minlength="8" autocomplete="current-password" required /></label><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-dark" id="register" type="button">Hesap oluştur</button><button class="btn" id="login" type="button">Giriş yap</button></div>`,
   );
